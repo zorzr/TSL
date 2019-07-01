@@ -270,6 +270,9 @@ class PlotToolbar(NavigationToolbar):
         self.init()
 
     def init(self):
+        self._actions['back'].setEnabled(True)
+        self._actions['forward'].setEnabled(True)
+
         self.label_button = QPushButton("", self)
         self.label_button.setFocusPolicy(Qt.NoFocus)
         self.label_button.setStyleSheet("padding: 10px 12px; height: 13px;")
@@ -280,6 +283,15 @@ class PlotToolbar(NavigationToolbar):
         self.addWidget(spacer)
         self.addWidget(self.label_button)
         self.layout().setSpacing(5)
+
+    def home(self):
+        self.canvas.reset()
+
+    def back(self):
+        self.canvas.prev_file()
+
+    def forward(self):
+        self.canvas.next_file()
 
     def update_label(self):
         data_config = get_session()

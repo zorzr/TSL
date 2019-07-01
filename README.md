@@ -2,18 +2,25 @@
 TSL is a Python-made tool made to analyze, process and label time series for supervised learning applications.
 Still work-in-progress, many functionalities are coming soon!
 
+
+
 ## Features
 - Works with single files
 - Projects for related data files
 - Customizable project labels
-- Basic functions
+- Zoom in/out on plots
+- Mouse and keyboard bindings
+- Basic functionalities
+
+
 
 ## TODO
-- Adapt toolbar bindings
 - Drag-and-drop labelling
 - Popup menu to customize plot positions
 - Functions of existings series
 - Other minor improvements
+
+
 
 ## Requirements
 - Python 3
