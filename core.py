@@ -182,10 +182,8 @@ class PlotCanvas(FigureCanvas):
     def same_index(self, new_x):
         if not self.core.timestamp:
             n_rows = get_session().datafile.df.shape[0]
-            x1 = min(self.prev_x, new_x)
-            x2 = max(self.prev_x, new_x)
-            x1 = max(int(round(x1)), 0)
-            x2 = max(int(round(x2)), 0)
+            x1 = max(int(round(self.prev_x)), 0)
+            x2 = max(int(round(new_x)), 0)
             x1 = min(x1, n_rows-1)
             x2 = min(x2, n_rows-1)
         else:
