@@ -8,14 +8,15 @@ Still work-in-progress, many functionalities are coming soon!
 - Works with single files
 - Projects for related data files
 - Customizable project labels
-- Zoom in/out on plots
 - Mouse and keyboard bindings
+- Drag-and-drop option for label application
+- Mouse click for precise labelling
+- Zoom in/out on plots
 - Basic functionalities
 
 
 
 ## TODO
-- Drag-and-drop labelling
 - Popup menu to customize plot positions
 - Functions of existings series
 - Other minor improvements

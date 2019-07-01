@@ -22,7 +22,7 @@ class PlotCore:
 
         self.subplots = []
         self.plotters = []
-        self.timestamp = None
+        self.timestamp = None  # TODO: implement timestamp
 
     def reset(self):
         for plot in self.subplots:
@@ -68,11 +68,22 @@ class PlotCore:
         datafile = data_config.datafile
         label, color = data_config.get_current_label()
 
-        n_rows = datafile.df.shape[0]
-        a = get_nearest_index(x1, self.timestamp) if self.timestamp else max(int(round(x1)), 0)
-        b = get_nearest_index(x2, self.timestamp) if self.timestamp else min(int(round(x2)), n_rows-1)
-        x1 = self.timestamp[a] if self.timestamp else a
-        x2 = self.timestamp[b] if self.timestamp else b
+        if not self.timestamp:
+            n_rows = datafile.df.shape[0]
+            a = max(int(round(x1)), 0)
+            b = max(int(round(x2)), 0)
+            x1 = min(a, n_rows-1)
+            x2 = min(b, n_rows-1)
+            if x1 == x2:
+                x1 = x1 - 0.5
+                x2 = x2 + 0.5
+        else:
+            # TODO: implement minimum label width for x1 = x2
+            # TODO: implement (function still doesn't exist)
+            a = get_nearest_index(x1, self.timestamp)
+            b = get_nearest_index(x2, self.timestamp)
+            x1 = self.timestamp[a]
+            x2 = self.timestamp[b]
 
         for plots in self.plotters:
             plots.add_rect(x1=x1, x2=x2, color=color)
@@ -153,10 +164,12 @@ class PlotCanvas(FigureCanvas):
         self.core = PlotCore(self)
         self.toolbar = PlotToolbar(self, window)
 
+        self.dragging = False
         self.modified = False
         self.prev_x = None
 
-        self.figure.canvas.mpl_connect('button_press_event', self.on_mouse_button)
+        self.figure.canvas.mpl_connect('button_press_event', self.on_mouse_press)
+        self.figure.canvas.mpl_connect('button_release_event', self.on_mouse_release)
         self.figure.canvas.mpl_connect('motion_notify_event', self.on_motion)
 
     def init(self):
@@ -165,9 +178,25 @@ class PlotCanvas(FigureCanvas):
 
     def refresh(self):
         self.draw()
-        # self.update_title()
 
-    def on_mouse_button(self, event):
+    def same_index(self, new_x):
+        if not self.core.timestamp:
+            n_rows = get_session().datafile.df.shape[0]
+            x1 = min(self.prev_x, new_x)
+            x2 = max(self.prev_x, new_x)
+            x1 = max(int(round(x1)), 0)
+            x2 = max(int(round(x2)), 0)
+            x1 = min(x1, n_rows-1)
+            x2 = min(x2, n_rows-1)
+        else:
+            # TODO: implement (function still doesn't exist)
+            a = get_nearest_index(self.prev_x, self.core.timestamp)
+            b = get_nearest_index(new_x, self.core.timestamp)
+            x1 = self.core.timestamp[a]
+            x2 = self.core.timestamp[b]
+        return x1 == x2
+
+    def on_mouse_press(self, event):
         if event.button not in (MOUSE_LEFT, MOUSE_RIGHT) or event.inaxes not in self.core.subplots:
             self.prev_x = None
             return
@@ -175,12 +204,29 @@ class PlotCanvas(FigureCanvas):
         if event.button == MOUSE_LEFT:
             if self.prev_x is None:
                 self.prev_x = event.xdata
+                self.dragging = True
             else:
                 self.core.add_label(event.xdata)
                 self.prev_x = None
         elif event.button == MOUSE_RIGHT:
             # TODO: replace with popup menu
             self.core.remove_label(event)
+
+    def on_mouse_release(self, event):
+        if event.button not in (MOUSE_LEFT, MOUSE_RIGHT) or event.inaxes not in self.core.subplots:
+            self.prev_x = None
+            return
+
+        if self.prev_x is None:
+            return
+
+        if event.button == MOUSE_LEFT:
+            if self.same_index(event.xdata):
+                self.dragging = False
+                return
+
+            self.core.add_label(event.xdata)
+            self.prev_x = None
 
     def on_motion(self, event):
         if event.inaxes not in self.core.subplots:
