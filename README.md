@@ -26,15 +26,10 @@ Still work-in-progress, many functionalities are coming soon!
 
 ## Requirements
 - [Python 3](https://www.python.org/)
-
 - [Numpy](https://www.numpy.org/)
-
 - [Pandas](https://pandas.pydata.org/)
-
 - [Matplotlib 3.1.0](https://matplotlib.org/)
-
 - [PyQT5](https://pypi.org/project/PyQt5/)
-
 - [lttb.py](https://github.com/javiljoen/lttb.py)
 
   
