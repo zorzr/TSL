@@ -7,6 +7,7 @@ Still work-in-progress, many functionalities are coming soon!
 ## Features
 - Works with single files
 - Projects for related data files
+- Timestamped data support
 - Customizable project labels
 - Mouse and keyboard bindings
 - Drag-and-drop option for label application

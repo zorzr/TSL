@@ -6,6 +6,7 @@ from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as Navigatio
 from matplotlib.figure import Figure
 from matplotlib.gridspec import GridSpec
 from matplotlib.colors import to_hex
+import matplotlib.dates as mdates
 
 from plotter import Plotter, get_nearest_index
 from config import get_session  # TODO: replace with import config and remove get_session
@@ -24,7 +25,7 @@ class PlotCore:
 
         self.subplots = []
         self.plotters = []
-        self.timestamp = None  # TODO: implement timestamp
+        self.timestamp = None
 
     def clear(self):
         for plot in self.subplots:
@@ -43,10 +44,11 @@ class PlotCore:
 
         datafile = data_config.datafile
         plot_set, normalize = data_config.get_plot_info()
-        header = datafile.get_data_header()  # TODO: treat functions as data?
+        header = list(datafile.df)  # TODO: treat functions as data?
 
         n_sub = len(plot_set)
         grid = GridSpec(n_sub, 1, left=0.08, right=0.92, top=0.99, bottom=0.04, hspace=0.1)
+        self.timestamp = [mdates.date2num(date) for date in datafile.get_timestamp()]
 
         for i in range(n_sub):
             norm = bool(i in normalize)
@@ -82,12 +84,14 @@ class PlotCore:
                 x1 = x1 - 0.5
                 x2 = x2 + 0.5
         else:
-            # TODO: implement minimum label width for x1 = x2
-            # TODO: implement (function still doesn't exist)
             a = get_nearest_index(x1, self.timestamp)
             b = get_nearest_index(x2, self.timestamp)
             x1 = self.timestamp[a]
             x2 = self.timestamp[b]
+            if x1 == x2:
+                span = (self.timestamp[-1] - self.timestamp[0]) / (10 * len(self.timestamp))
+                x1 = x1 - span
+                x2 = x2 + span
 
         for plots in self.plotters:
             plots.add_rect(x1=x1, x2=x2, color=color)
@@ -123,8 +127,20 @@ class PlotCore:
     def insert_labels(self):
         data_config = get_session()
         for lab in data_config.datafile.labels_list:
-            x1 = self.timestamp[lab[1][0]] if self.timestamp else lab[1][0]
-            x2 = self.timestamp[lab[1][1]] if self.timestamp else lab[1][1]
+            if self.timestamp:
+                x1 = self.timestamp[lab[1][0]]
+                x2 = self.timestamp[lab[1][1]]
+                if x1 == x2:
+                    span = (self.timestamp[-1] - self.timestamp[0]) / (10 * len(self.timestamp))
+                    x1 = x1 - span
+                    x2 = x2 + span
+            else:
+                x1 = lab[1][0]
+                x2 = lab[1][1]
+                if x1 == x2:
+                    x1 = x1 - 0.5
+                    x2 = x2 + 0.5
+
             for plot in self.plotters:
                 plot.add_rect(x1=x1, x2=x2, color=data_config.get_label_color(lab[0]))
 
@@ -191,7 +207,6 @@ class PlotCanvas(FigureCanvas):
             x1 = min(x1, n_rows-1)
             x2 = min(x2, n_rows-1)
         else:
-            # TODO: implement (function still doesn't exist)
             a = get_nearest_index(self.prev_x, self.core.timestamp)
             b = get_nearest_index(new_x, self.core.timestamp)
             x1 = self.core.timestamp[a]
@@ -214,8 +229,9 @@ class PlotCanvas(FigureCanvas):
             index = self.core.subplots.index(event.inaxes)
             popup = RightClickMenu(self, index, event)
             popup.exec_()
-            self.core.clear()
-            self.core.plot()
+            if popup.reload:
+                self.core.clear()
+                self.core.plot()
 
     def on_mouse_release(self, event):
         if event.button not in (MOUSE_LEFT, MOUSE_RIGHT) or event.inaxes not in self.core.subplots:

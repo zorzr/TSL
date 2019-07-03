@@ -23,6 +23,7 @@ class RightClickMenu(QMenu):
         self.canvas = plot_canvas
         self.click_event = click_event
         self.plot_index = plot_index
+        self.reload = True
 
         self.plot_set = None
         self.normalize = None
@@ -34,7 +35,7 @@ class RightClickMenu(QMenu):
         # Remove label (if there is a label under the cursor)
         if self.canvas.core.find_clicked_rect(self.click_event) is not None:
             remove_label = QAction('Remove label', self)
-            remove_label.triggered.connect(lambda: self.canvas.core.remove_label(self.click_event))
+            remove_label.triggered.connect(self.remove_label)
             self.addAction(remove_label)
             self.addSeparator()
 
@@ -83,6 +84,10 @@ class RightClickMenu(QMenu):
         reset_all = QAction("Reset all plots", self)
         reset_all.triggered.connect(self.reset_all)
         self.addAction(reset_all)
+
+    def remove_label(self):
+        self.reload = False
+        self.canvas.core.remove_label(self.click_event)
 
     def action(self, value):
         data_columns = config.data_config.datafile.get_data_columns()
