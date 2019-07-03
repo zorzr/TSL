@@ -10,22 +10,31 @@ Still work-in-progress, many functionalities are coming soon!
 - Customizable project labels
 - Mouse and keyboard bindings
 - Drag-and-drop option for label application
-- Mouse click for precise labelling
+- Single mouse click for precise labelling
+- Right-click menu to customize the plot layout
 - Zoom in/out on plots
-- Basic functionalities
 
 
 
 ## TODO
-- Popup menu to customize plot positions
 - Functions of existings series
+- Settings window
+- Label customization from app
 - Other minor improvements
 
 
 
 ## Requirements
-- Python 3
-- Numpy
-- Pandas
-- Matplotlib
-- PyQT5
+- [Python 3](https://www.python.org/)
+
+- [Numpy](https://www.numpy.org/)
+
+- [Pandas](https://pandas.pydata.org/)
+
+- [Matplotlib 3.1.0](https://matplotlib.org/)
+
+- [PyQT5](https://pypi.org/project/PyQt5/)
+
+- [lttb.py](https://github.com/javiljoen/lttb.py)
+
+  

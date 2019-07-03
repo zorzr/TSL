@@ -180,15 +180,6 @@ class LabelerWindow(QMainWindow):
     def keyPressEvent(self, event):
         self.plot_canvas.on_key(event)
 
-    def ask_to_continue(self):
-        msg = QMessageBox()
-        msg.setWindowIcon(self.windowIcon())
-        msg.setIcon(QMessageBox.Information)
-        msg.setWindowTitle("Information")
-        msg.setText("Do you want to continue?\nUnsaved changes will be lost")
-        msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
-        msg.setDefaultButton(QMessageBox.No)
-        msg.setStyleSheet("QLabel { margin-right: 7px; }")
-
-        ret = msg.exec_()
-        return bool(ret == QMessageBox.Yes)
+    def closeEvent(self, event):
+        self.plot_canvas.quit()
+        event.ignore()

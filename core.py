@@ -9,6 +9,8 @@ from matplotlib.colors import to_hex
 
 from plotter import Plotter, get_nearest_index
 from config import get_session  # TODO: replace with import config and remove get_session
+from popup import RightClickMenu
+import dialogs
 
 MOUSE_RIGHT = 3
 MOUSE_LEFT = 1
@@ -24,14 +26,16 @@ class PlotCore:
         self.plotters = []
         self.timestamp = None  # TODO: implement timestamp
 
-    def reset(self):
+    def clear(self):
         for plot in self.subplots:
             self.figure.delaxes(plot)
         del self.subplots[:]
         del self.plotters[:]
 
+    def reset(self):
         data_config = get_session()
         data_config.read()
+        self.clear()
         self.plot()
 
     def plot(self):
@@ -207,8 +211,11 @@ class PlotCanvas(FigureCanvas):
                 self.core.add_label(event.xdata)
                 self.prev_x = None
         elif event.button == MOUSE_RIGHT:
-            # TODO: replace with popup menu
-            self.core.remove_label(event)
+            index = self.core.subplots.index(event.inaxes)
+            popup = RightClickMenu(self, index, event)
+            popup.exec_()
+            self.core.clear()
+            self.core.plot()
 
     def on_mouse_release(self, event):
         if event.button not in (MOUSE_LEFT, MOUSE_RIGHT) or event.inaxes not in self.core.subplots:
@@ -291,10 +298,10 @@ class PlotCanvas(FigureCanvas):
     def quit(self):
         data_config = get_session()
         if self.modified or data_config.modified:
-            answer = self.labeler.ask_to_continue()
+            answer = dialogs.ask_to_continue()
             if not answer:
                 return
-        self.labeler.close()
+        exit(0)
 
 
 class PlotToolbar(NavigationToolbar):

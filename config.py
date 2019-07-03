@@ -105,6 +105,11 @@ class FilesData:
     def get_plot_info(self):
         return self.config["plot"], self.config["normalize"]
 
+    def set_plot_info(self, plot_set, normalize):
+        self.config["plot"] = plot_set
+        self.config["normalize"] = normalize
+        self.modified = True
+
     def next_file(self):
         self.current_file = (self.current_file + 1) % len(self.files_list)
 
@@ -213,6 +218,13 @@ class ProjectData:
         header = self.datafile.get_data_header()
         conf = self.config[str(header)]
         return conf["plot"], conf["normalize"]
+
+    def set_plot_info(self, plot_set, normalize):
+        header = self.datafile.get_data_header()
+        conf = self.config[str(header)]
+        conf["plot"] = plot_set
+        conf["normalize"] = normalize
+        self.modified = True
 
     def next_file(self):
         self.current_file = (self.current_file + 1) % len(self.config["files"])
