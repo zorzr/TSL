@@ -1,9 +1,11 @@
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
+from settings import LabelTable, LabelDialog
 import matplotlib.colors as pltc
 
 
+# noinspection PyArgumentList
 class ProjectWizard(QWizard):
     def __init__(self, files, parent=None):
         super(ProjectWizard, self).__init__(parent)
@@ -34,6 +36,7 @@ class ProjectWizard(QWizard):
         }
 
 
+# noinspection PyArgumentList
 class Page1(QWizardPage):
     def __init__(self, files, parent=None):
         super(Page1, self).__init__(parent)
@@ -76,6 +79,7 @@ class Page1(QWizardPage):
         return complete
 
 
+# noinspection PyArgumentList
 class Page2(QWizardPage):
     def __init__(self, parent=None):
         super(Page2, self).__init__(parent)
@@ -83,7 +87,9 @@ class Page2(QWizardPage):
         self.setSubTitle("Indicate the labels to be used in the created project.")
         self.setFinalPage(True)
 
-        self.table = LabelTable()
+        default_labels = [("Label", "#1f77b4")]
+        self.table = LabelTable(default_labels)
+
         layout = QVBoxLayout()
         layout.addWidget(self.table)
         self.setLayout(layout)
@@ -160,101 +166,3 @@ class Page2(QWizardPage):
 
     def isComplete(self):
         return self.table.rowCount() > 0
-
-
-class LabelTable(QTableWidget):
-    def __init__(self):
-        super().__init__()
-
-        self.setColumnCount(2)
-        self.setHorizontalHeaderLabels(["Label name", "Color"])
-        self.insert_row("Label", "#1f77b4")
-
-        self.verticalHeader().hide()
-        self.setAlternatingRowColors(True)
-        self.setSelectionBehavior(QAbstractItemView.SelectRows)
-        self.setSelectionMode(QAbstractItemView.SingleSelection | QAbstractItemView.NoSelection)
-        self.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        self.horizontalHeader().setSectionResizeMode(0, QHeaderView.Stretch)
-        self.horizontalHeader().setSectionResizeMode(1, QHeaderView.Stretch)
-
-    def insert_row(self, label, color):
-        row = self.rowCount()
-        self.insertRow(row)
-        self.setItem(row, 0, QTableWidgetItem(label))
-        self.setItem(row, 1, QTableWidgetItem(color))
-        self.item(row, 0).setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
-        self.item(row, 1).setFlags(Qt.ItemIsSelectable | Qt.ItemIsEnabled)
-
-    def generate_labels_list(self):
-        names_list = []
-        colors_list = []
-        for i in range(self.rowCount()):
-            name = self.item(i, 0).text()
-            color = self.item(i, 1).text()
-            names_list.append(name)
-            colors_list.append(color)
-        return names_list, colors_list
-
-
-class LabelDialog(QDialog):
-    def __init__(self, label="", color=""):
-        super().__init__()
-        self.setWindowTitle("Customization")
-        self.setWindowIcon(QIcon('./assets/icon_green.png'))
-        self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)
-        self.resize(250, 130)
-
-        self.group_box = QGroupBox("Label details")
-        layout = QFormLayout()
-
-        self.name = QLineEdit()
-        self.color = QLineEdit()
-        self.pick = QPushButton("Pick")
-
-        self.name.setText(label)
-        self.color.setText(color)
-        self.name.setMaxLength(20)
-
-        self.pick.clicked.connect(self.pick_color)
-        self.name.textChanged.connect(self.validate_form)
-        self.color.textChanged.connect(self.validate_form)
-
-        color_input = QWidget()
-        color_layout = QHBoxLayout()
-        color_layout.addWidget(self.color)
-        color_layout.addWidget(self.pick)
-        color_input.setLayout(color_layout)
-        color_layout.setContentsMargins(0, 0, 0, 0)
-
-        layout.addRow(QLabel("Name:"), self.name)
-        layout.addRow(QLabel("Color:"), color_input)
-        self.group_box.setLayout(layout)
-
-        self.button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
-        self.button_box.accepted.connect(self.accept)
-        self.button_box.rejected.connect(self.reject)
-        self.button_box.button(QDialogButtonBox.Ok).setEnabled(False)
-
-        main_layout = QVBoxLayout()
-        main_layout.addWidget(self.group_box)
-        main_layout.addWidget(self.button_box)
-        self.setLayout(main_layout)
-
-    def pick_color(self):
-        dialog = QColorDialog()
-        dialog.setWindowIcon(self.windowIcon())  # TODO: Doesn't work
-
-        # Default matplotlib colors are proposed as custom colors
-        for i, col in enumerate(['C' + str(j) for j in range(10)]):
-            dialog.setCustomColor(i, QColor(pltc.to_hex(col)))
-
-        color = dialog.getColor()
-        if color.isValid():
-            self.color.setText(color.name())
-
-    def validate_form(self):
-        if self.name.text() != "" and pltc.is_color_like(self.color.text()):
-            self.button_box.button(QDialogButtonBox.Ok).setEnabled(True)
-        else:
-            self.button_box.button(QDialogButtonBox.Ok).setEnabled(False)

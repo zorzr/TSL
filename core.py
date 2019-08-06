@@ -9,8 +9,8 @@ from matplotlib.colors import to_hex
 import matplotlib.dates as mdates
 
 from plotter import Plotter, get_nearest_index
-from config import get_session  # TODO: replace with import config and remove get_session
 from popup import RightClickMenu
+import config
 import dialogs
 
 MOUSE_RIGHT = 3
@@ -34,16 +34,13 @@ class PlotCore:
         del self.plotters[:]
 
     def reset(self):
-        data_config = get_session()
-        data_config.read()
+        config.data_config.read()
         self.clear()
         self.plot()
 
     def plot(self):
-        data_config = get_session()
-
-        datafile = data_config.datafile
-        plot_set, normalize = data_config.get_plot_info()
+        datafile = config.data_config.datafile
+        plot_set, normalize = config.data_config.get_plot_info()
         header = list(datafile.df)  # TODO: treat functions as data?
 
         n_sub = len(plot_set)
@@ -64,15 +61,14 @@ class PlotCore:
 
         self.manage_empty()
         self.insert_labels()
-        self.canvas.draw()
+        self.canvas.refresh()
 
     def add_label(self, new_x):
         x1 = min(self.canvas.prev_x, new_x)
         x2 = max(self.canvas.prev_x, new_x)
 
-        data_config = get_session()
-        datafile = data_config.datafile
-        label, color = data_config.get_current_label()
+        datafile = config.data_config.datafile
+        label, color = config.data_config.get_current_label()
 
         if not self.timestamp:
             n_rows = datafile.df.shape[0]
@@ -98,20 +94,19 @@ class PlotCore:
         datafile.labels_list.append([label, (a, b)])
 
         self.canvas.modified = True
-        self.canvas.refresh()
+        self.canvas.draw()
 
     def remove_label(self, event):
         clk = self.find_clicked_rect(event)
         if clk is None:
             return
 
-        data_config = get_session()
         for plots in self.plotters:
             plots.remove_rect(clk)
-        del data_config.datafile.labels_list[clk]
+        del config.data_config.datafile.labels_list[clk]
 
         self.canvas.modified = True
-        self.canvas.refresh()
+        self.canvas.draw()
 
     def find_clicked_rect(self, event):
         clicked_rects = None
@@ -125,7 +120,7 @@ class PlotCore:
             return index[-1]
 
     def insert_labels(self):
-        data_config = get_session()
+        data_config = config.data_config
         for lab in data_config.datafile.labels_list:
             if self.timestamp:
                 x1 = self.timestamp[lab[1][0]]
@@ -197,11 +192,12 @@ class PlotCanvas(FigureCanvas):
         self.core.plot()
 
     def refresh(self):
+        self.toolbar.update_label()
         self.draw()
 
     def same_index(self, new_x):
         if not self.core.timestamp:
-            n_rows = get_session().datafile.df.shape[0]
+            n_rows = config.data_config.datafile.df.shape[0]
             x1 = max(int(round(self.prev_x)), 0)
             x2 = max(int(round(new_x)), 0)
             x1 = min(x1, n_rows-1)
@@ -279,47 +275,53 @@ class PlotCanvas(FigureCanvas):
         self.core.reset()
 
     def save(self):
-        data_config = get_session()
         if self.modified:
-            data_config.save_file()
-        data_config.save_config()
+            config.data_config.save_file()
+        config.data_config.save_config()
         self.modified = False
 
     def next_label(self):
-        get_session().next_label()
+        config.data_config.next_label()
         self.toolbar.update_label()
 
     def prev_label(self):
-        get_session().prev_label()
+        config.data_config.prev_label()
         self.toolbar.update_label()
 
     def next_file(self):
-        data_config = get_session()
-        if self.modified or data_config.modified:
-            answer = self.labeler.ask_to_continue()
-            if not answer:
-                return
-        data_config.next_file()
+        if self.modified or config.data_config.modified:
+            if config.tsl_config.config["autosave"]:
+                self.save()
+            else:
+                answer = dialogs.ask_to_continue()
+                if not answer:
+                    return
+        config.data_config.next_file()
         self.reset()
 
     def prev_file(self):
-        data_config = get_session()
-        if self.modified or data_config.modified:
-            answer = self.labeler.ask_to_continue()
-            if not answer:
-                return
-        data_config.prev_file()
+        if self.modified or config.data_config.modified:
+            if config.tsl_config.config["autosave"]:
+                self.save()
+            else:
+                answer = dialogs.ask_to_continue()
+                if not answer:
+                    return
+        config.data_config.prev_file()
         self.reset()
 
     def quit(self):
-        data_config = get_session()
-        if self.modified or data_config.modified:
-            answer = dialogs.ask_to_continue()
-            if not answer:
-                return
+        if self.modified or config.data_config.modified:
+            if config.tsl_config.config["autosave"]:
+                self.save()
+            else:
+                answer = dialogs.ask_to_continue()
+                if not answer:
+                    return
         exit(0)
 
 
+# noinspection PyArgumentList
 class PlotToolbar(NavigationToolbar):
     def __init__(self, canvas, root):
         self.toolitems = (
@@ -361,8 +363,7 @@ class PlotToolbar(NavigationToolbar):
         self.canvas.next_file()
 
     def update_label(self):
-        data_config = get_session()
-        text, color = data_config.get_current_label()
+        text, color = config.data_config.get_current_label()
 
         image = QPixmap(15, 15).toImage()
         qt_color = QColor(to_hex(color))

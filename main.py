@@ -33,7 +33,6 @@ class ApplicationController:
         self.labeler.show()
 
     def to_opening(self):
-        self.labeler.close()
         self.labeler.destroy()
         self.opening.show()
 

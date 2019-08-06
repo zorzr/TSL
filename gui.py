@@ -2,6 +2,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from core import PlotCanvas
+from settings import SettingsWindow
 
 
 class PicButton(QAbstractButton):
@@ -138,6 +139,7 @@ class LabelerWindow(QMainWindow):
         next_file = file.addAction('Next file')
         prev_file = file.addAction('Previous file')
         file.addSeparator()
+        settings = file.addAction('Settings')
         ret = file.addAction('Return')
         close = file.addAction('Quit')
 
@@ -145,6 +147,7 @@ class LabelerWindow(QMainWindow):
         save.setShortcut('S')
         next_file.setShortcut('N')
         prev_file.setShortcut('P')
+        settings.setShortcut('Ctrl+O')
         ret.setShortcut('Ctrl+R')
         close.setShortcut('Ctrl+Q')
 
@@ -152,6 +155,7 @@ class LabelerWindow(QMainWindow):
         save.setIcon(QIcon('./assets/save.png'))
         next_file.setIcon(QIcon('./assets/next_file.png'))
         prev_file.setIcon(QIcon('./assets/prev_file.png'))
+        settings.setIcon(QIcon('./assets/setting.png'))
         ret.setIcon(QIcon('./assets/return.png'))
         close.setIcon(QIcon('./assets/quit.png'))
 
@@ -159,6 +163,7 @@ class LabelerWindow(QMainWindow):
         save.triggered.connect(self.plot_canvas.save)
         next_file.triggered.connect(self.plot_canvas.next_file)
         prev_file.triggered.connect(self.plot_canvas.prev_file)
+        settings.triggered.connect(self.open_settings)
         ret.triggered.connect(self.controller.to_opening)
         close.triggered.connect(self.plot_canvas.quit)
 
@@ -167,15 +172,19 @@ class LabelerWindow(QMainWindow):
 
         next_label = label.addAction('Next label')
         prev_label = label.addAction('Previous label')
+        label.addSeparator()
+        customize_label = label.addAction('Customize labels')
 
         next_label.setShortcut('L')
         prev_label.setShortcut('K')
 
         next_label.setIcon(QIcon('./assets/next_label.png'))
         prev_label.setIcon(QIcon('./assets/prev_label.png'))
+        customize_label.setIcon(QIcon('./assets/customize.png'))
 
         next_label.triggered.connect(self.plot_canvas.next_label)
         prev_label.triggered.connect(self.plot_canvas.prev_label)
+        customize_label.triggered.connect(lambda: self.open_settings(1))
 
     def keyPressEvent(self, event):
         self.plot_canvas.on_key(event)
@@ -183,3 +192,9 @@ class LabelerWindow(QMainWindow):
     def closeEvent(self, event):
         self.plot_canvas.quit()
         event.ignore()
+
+    def open_settings(self, active=0):
+        settings_window = SettingsWindow()
+        settings_window.tabs.setCurrentIndex(active)
+        settings_window.exec()
+        self.plot_canvas.reset()

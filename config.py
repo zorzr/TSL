@@ -36,10 +36,16 @@ class FilesData:
             self.read_conf()
             self.read_file()
         else:
-            self.config = tsl_config.default
+            self.config = {
+                "labels": ["Label"],
+                "colors": ["#1f77b4"],
+            }
             self.read_file()
             self.config["plot"] = [[i] for i in self.datafile.get_data_columns()]
             self.config["normalize"] = []
+
+        if self.current_label >= len(self.config["labels"]):
+            self.current_label = 0
 
     def read_conf(self):
         conf_path = self.config_list[self.current_file]
@@ -102,6 +108,17 @@ class FilesData:
         index = self.config["labels"].index(label)
         return self.config["colors"][index]
 
+    def get_labels_info(self):
+        return self.config["labels"], self.config["colors"]
+
+    def set_labels_info(self, names, colors):
+        self.config["labels"] = names
+        self.config["colors"] = colors
+        self.modified = True
+
+        if self.current_label >= len(names):
+            self.current_label = 0
+
     def get_plot_info(self):
         return self.config["plot"], self.config["normalize"]
 
@@ -132,12 +149,14 @@ class ProjectData:
         self.read_conf()
         self.read_file()
 
-    # TODO: verify the correct behavior while browsing between files
     def read(self):
         if self.modified:
             self.read_conf()
             self.modified = False
         self.read_file()
+
+        if self.current_label >= len(self.config["labels"]):
+            self.current_label = 0
 
     def read_conf(self):
         try:
@@ -214,6 +233,17 @@ class ProjectData:
         index = self.config["labels"].index(label)
         return self.config["colors"][index]
 
+    def get_labels_info(self):
+        return self.config["labels"], self.config["colors"]
+
+    def set_labels_info(self, names, colors):
+        self.config["labels"] = names
+        self.config["colors"] = colors
+        self.modified = True
+
+        if self.current_label >= len(names):
+            self.current_label = 0
+
     def get_plot_info(self):
         header = self.datafile.get_data_header()
         conf = self.config[str(header)]
@@ -235,11 +265,65 @@ class ProjectData:
 
 class Config:
     def __init__(self):
-        self.autosave = False
-        self.default = {
-            "labels": ["Label #1", "Label #2", "Label #3"],
-            "colors": ["C0", "C2", "C3"],
-        }
+        self.path = None
+        self.config = None
+        self.default = {"autosave": False}
+        self.init()
+
+    def init(self):
+        default_path = './config.json'
+        alternative_path = os.path.expanduser('~/.config/tsl/config.json')
+
+        if os.path.exists(default_path):
+            conf = read_json(default_path)
+            if conf is not None:
+                self.path = default_path
+                self.config = conf
+                return
+        elif write_json(self.default, default_path):
+            self.path = default_path
+            self.config = self.default
+            return
+
+        if os.path.exists(alternative_path):
+            conf = read_json(alternative_path)
+            if conf is not None:
+                self.path = alternative_path
+                self.config = conf
+                return
+        else:
+            if not os.path.isdir(os.path.dirname(alternative_path)):
+                os.makedirs(os.path.dirname(alternative_path))
+            if write_json(self.default, alternative_path):
+                self.path = alternative_path
+                self.config = self.default
+                return
+
+        logger.error("Unable to read or write a configuration file")
+        exit(2)
+
+    def save(self):
+        write_json(self.config, self.path)
+
+
+def read_json(path):
+    try:
+        with open(path) as in_file:
+            target_config = json.load(in_file)
+            return target_config
+    except IOError:
+        logger.error("Unable to read {}: permission denied".format(path))
+        return None
+
+
+def write_json(data, path):
+    try:
+        with open(path, 'w') as out_file:
+            json.dump(data, out_file)
+            return True
+    except IOError:
+        logger.error("Unable to write {}: permission denied".format(path))
+        return False
 
 
 def start_session(files=None, project=None):
@@ -248,11 +332,6 @@ def start_session(files=None, project=None):
         data_config = FilesData(files)
     elif project:
         data_config = ProjectData(project)
-
-
-def get_session():
-    global data_config
-    return data_config
 
 
 def get_files_list(folder):
@@ -291,9 +370,6 @@ def init_logger(path):
     return log
 
 
-tsl_config = Config()
-data_config = None
-
 try:
     logger = init_logger('./tsl.log')
 except IOError:
@@ -301,3 +377,6 @@ except IOError:
     if not os.path.isdir(os.path.dirname(ALT_LOG)):
         os.makedirs(os.path.dirname(ALT_LOG))
     logger = init_logger(ALT_LOG)
+
+tsl_config = Config()
+data_config = None
