@@ -7,6 +7,8 @@ Label names and colors are customizable from within the application and are stor
 
 Furthermore, the application combines key bindings, mouse click and drag/drop to speed up operations and allow a quick context change from a file to the following. Zoom in and out is supported and can become really useful when managing really long series: high performances are granted by a downsampling algorithm which doesn't affect the usage and is completely transparent to the user.
 
+Advanced signal processing feature is also provided: an expansible set of functions can be used to process the time series and plot the generated ones alongside the original (e.g. derivative, integral). The user could also choose the name of the new series to be generated and the parameters to be adopted bu the function algorithm.
+
 
 
 ## Features
@@ -16,16 +18,17 @@ Furthermore, the application combines key bindings, mouse click and drag/drop to
 - Customizable labels for files and projects
 - Mouse and keyboard bindings
 - Drag-and-drop option for label application
-- Single mouse click for precise labelling
+- Single mouse click for precise labeling
 - Right-click menu to customize the plot layout
 - Downsampling algorithm applied for big series
+- Calculation of functions of the existing series
+- Freedom in functions customization
 - Zoom in/out on plots
 - Autosave feature
 
 
 
 ## TODO
-- Functions of existing series
 - Figure layout management from settings
 - Scrollbar to display huge numbers of plots
 - Other minor improvements
