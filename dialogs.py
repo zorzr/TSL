@@ -5,7 +5,6 @@ from PyQt5.QtGui import QIcon
 
 def ask_to_continue():
     msg = QMessageBox()
-    msg.setWindowIcon(QIcon('./assets/icon_green.png'))
     msg.setIcon(QMessageBox.Information)
     msg.setWindowTitle("Information")
     msg.setText("Do you want to continue?\nUnsaved changes will be lost")
@@ -19,7 +18,6 @@ def ask_to_continue():
 
 def report_no_files():
     msg = QMessageBox()
-    msg.setWindowIcon(QIcon('./assets/icon_green.png'))
     msg.setIcon(QMessageBox.Critical)
     msg.setWindowTitle("Error")
     msg.setText("No suitable files have been found in the selected folder.\n"
@@ -31,7 +29,6 @@ def report_no_files():
 
 def notify_read_error(filename):
     msg = QMessageBox()
-    msg.setWindowIcon(QIcon('./assets/icon_green.png'))
     msg.setIcon(QMessageBox.Warning)
     msg.setWindowTitle("Warning")
     msg.setText("An error occurred while processing the file:\n" + filename +

@@ -33,15 +33,18 @@ class PlotCore:
         del self.subplots[:]
         del self.plotters[:]
 
-    def reset(self):
-        config.data_config.read()
+    def redraw(self):
         self.clear()
         self.plot()
+
+    def reset(self):
+        config.data_config.read()
+        self.redraw()
 
     def plot(self):
         datafile = config.data_config.datafile
         plot_set, normalize = config.data_config.get_plot_info()
-        header = list(datafile.df)  # TODO: treat functions as data?
+        header = list(datafile.df)
 
         n_sub = len(plot_set)
         grid = GridSpec(n_sub, 1, left=0.08, right=0.92, top=0.99, bottom=0.04, hspace=0.1)
@@ -273,6 +276,7 @@ class PlotCanvas(FigureCanvas):
         self.prev_x = None
         self.modified = False
         self.core.reset()
+        self.labeler.update_functions()
 
     def save(self):
         if self.modified:

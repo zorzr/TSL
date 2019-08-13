@@ -15,8 +15,6 @@ class SettingsWindow(QDialog):
         self.button_panel = QWidget()
 
         self.setWindowTitle("Settings")
-        self.setWindowIcon(QIcon('./assets/icon_green.png'))
-        self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)
         self.setWindowModality(Qt.ApplicationModal)
         self.setFixedSize(640, 480)
 
@@ -57,7 +55,6 @@ class SettingsWindow(QDialog):
     def apply(self):
         self.general.apply()
         self.labels.apply()
-        config.data_config.save_config()
         config.tsl_config.save()
 
     def cancel(self):
@@ -207,8 +204,6 @@ class LabelDialog(QDialog):
     def __init__(self, label="", color=""):
         super().__init__()
         self.setWindowTitle("Customization")
-        self.setWindowIcon(QIcon('./assets/icon_green.png'))
-        self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)
         self.resize(250, 130)
 
         self.group_box = QGroupBox("Label details")
@@ -247,9 +242,11 @@ class LabelDialog(QDialog):
         main_layout.addWidget(self.button_box)
         self.setLayout(main_layout)
 
+        self.bad_names = []
+        self.set_bad_names()
+
     def pick_color(self):
         dialog = QColorDialog()
-        dialog.setWindowIcon(self.windowIcon())  # TODO: Doesn't work
 
         # Default matplotlib colors are proposed as custom colors
         for i, col in enumerate(['C' + str(j) for j in range(10)]):  # TODO: find a better way to enumerate
@@ -260,7 +257,18 @@ class LabelDialog(QDialog):
             self.color.setText(color.name())
 
     def validate_form(self):
-        if self.name.text() != "" and pltc.is_color_like(self.color.text()):
+        name = self.name.text()
+        color = self.color.text()
+
+        if name not in self.bad_names and not name.isspace() \
+                and pltc.is_color_like(color) and pltc.is_color_like(pltc.to_hex(color)):
             self.button_box.button(QDialogButtonBox.Ok).setEnabled(True)
         else:
             self.button_box.button(QDialogButtonBox.Ok).setEnabled(False)
+
+    def set_bad_names(self):
+        conf = config.data_config
+        data_col = conf.datafile.get_data_header()
+        labels, _ = conf.get_labels_info()
+        functions = conf.get_functions()
+        self.bad_names = [""] + data_col + labels + functions

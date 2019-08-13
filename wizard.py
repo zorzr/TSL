@@ -10,8 +10,8 @@ class ProjectWizard(QWizard):
     def __init__(self, files, parent=None):
         super(ProjectWizard, self).__init__(parent)
         self.setWindowTitle("Project setup")
-        self.setWindowIcon(QIcon('./assets/icon_green.png'))
-        self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)
+        # self.setWindowIcon(QIcon('./assets/icon_green.png'))
+        # self.setWindowFlags(self.windowFlags() & ~Qt.WindowContextHelpButtonHint)
         self.setFixedSize(640, 480)
         self.project = None
 

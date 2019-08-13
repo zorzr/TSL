@@ -1,5 +1,7 @@
 import sys
 import ctypes
+from PyQt5.QtGui import QIcon
+from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication
 from gui import OpeningWindow, LabelerWindow
 from wizard import ProjectWizard
@@ -55,5 +57,7 @@ class ApplicationController:
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
+    app.setWindowIcon(QIcon('./assets/icon_green.png'))
+    app.setAttribute(Qt.AA_DisableWindowContextHelpButton, True)
     controller = ApplicationController()
     sys.exit(app.exec_())

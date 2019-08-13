@@ -17,6 +17,7 @@ class PlotMenuAction(QAction):
         self.plot_menu.action(self.value)
 
 
+# noinspection PyArgumentList
 class RightClickMenu(QMenu):
     def __init__(self, plot_canvas, plot_index, click_event):
         super().__init__(plot_canvas)

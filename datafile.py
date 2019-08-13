@@ -9,10 +9,8 @@ TIMESTAMP = 'Timestamp'
 class DataFile:
     def __init__(self, filename, labels):
         self.filename = filename
-        self.labels = labels
 
         self.df = None
-        self.functions = []
         self.labels_list = []
 
         ext = os.path.splitext(filename)[1]
@@ -23,7 +21,7 @@ class DataFile:
             raise UnrecognizedFormatError
 
         self.read()
-        self.update_labels_list()
+        self.update_labels_list(labels)
 
     def read(self):
         self.df = self.io.read(self.filename)
@@ -34,35 +32,32 @@ class DataFile:
     def get_data_columns(self):
         data_col = []
         for i, key in enumerate(self.df):
-            if key != TIMESTAMP and key not in self.labels:
+            if key != TIMESTAMP:
                 data_col.append(i)
         return data_col
 
     def get_original_columns(self):
+        functions = config.data_config.get_functions()
+
         orig_col = []
         for i, key in enumerate(self.df):
-            if key not in self.labels and key not in self.functions:
+            if key not in functions:
                 orig_col.append(i)
         return orig_col
 
     def get_function_columns(self):
+        functions = config.data_config.get_functions()
+
         func_col = []
         for i, key in enumerate(self.df):
-            if key in self.functions:
+            if key in functions:
                 func_col.append(i)
         return func_col
 
     def get_data_header(self):
         col_names = []
         for key in list(self.df):
-            if key != TIMESTAMP and key not in self.labels and key not in self.functions:
-                col_names.append(key)
-        return col_names
-
-    def get_full_header(self):
-        col_names = []
-        for key in list(self.df):
-            if key != TIMESTAMP and key not in self.labels:
+            if key != TIMESTAMP:
                 col_names.append(key)
         return col_names
 
@@ -76,12 +71,17 @@ class DataFile:
         indexes = [i for i, val in enumerate(label_col) if val == 1.0]
         return indexes[0], indexes[-1]
 
-    def update_labels_list(self):
+    def update_labels_list(self, labels):
         self.labels_list = []
         for i, key in enumerate(list(self.df)):
-            if key in self.labels:
+            if key in labels:
                 data = self.df.iloc[:, i]
                 self.labels_list.append([key, self.get_label_range(data)])
+
+        # Labels are removed from DataFrame to avoid mistakes
+        for label in labels:
+            if label in list(self.df):
+                del self.df[label]
 
     def get_label_series(self, label):
         a = label[1][0]
@@ -111,18 +111,14 @@ class DataFile:
             all_data = pd.concat([all_data, label_df], axis=1)
 
         self.io.save(all_data, self.filename)
-        self.df = all_data
 
-    def get_series_to_process(self, column):
-        data = self.df[column]
+    def get_series_to_process(self, column, name):
+        data = self.df.iloc[:, column]
         index = pd.DatetimeIndex(self.df[TIMESTAMP]) if TIMESTAMP in self.df else self.df.index
-        return pd.Series(data.values, index=index, name=column)
+        return pd.Series(data.values, index=index, name=name)
 
-    # TODO: insert function before labels to keep a single plot_set
     def add_function(self, series):
-        self.functions.append(series.name)
         self.df = pd.concat([self.df, series], axis=1)
 
     def remove_function(self, f_name):
-        self.functions.remove(f_name)
         del self.df[f_name]

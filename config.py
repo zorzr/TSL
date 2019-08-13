@@ -43,9 +43,11 @@ class FilesData:
             self.read_file()
             self.config["plot"] = [[i] for i in self.datafile.get_data_columns()]
             self.config["normalize"] = []
+            self.config["functions"] = []
 
         if self.current_label >= len(self.config["labels"]):
             self.current_label = 0
+        self.modified = False
 
     def read_conf(self):
         conf_path = self.config_list[self.current_file]
@@ -132,6 +134,30 @@ class FilesData:
 
     def prev_file(self):
         self.current_file = (self.current_file - 1 + len(self.files_list)) % len(self.files_list)
+
+    def get_functions(self):
+        return self.config["functions"]
+
+    def add_function(self, fs):
+        self.datafile.add_function(fs)
+        self.config["functions"].append(fs.name)
+        self.modified = True
+
+    def remove_function(self, index):
+        f_name = self.config["functions"][index]
+
+        header = self.datafile.get_data_header()
+        f_col = self.datafile.get_data_columns()[header.index(f_name)]
+        for plot in self.config["plot"]:
+            if f_col in plot:
+                plot.remove(f_col)
+            for i, col in enumerate(plot):
+                if col > f_col:
+                    plot[i] = col - 1
+
+        self.datafile.remove_function(f_name)
+        del self.config["functions"][index]
+        self.modified = True
 
 
 # Interacts with project.json
@@ -261,6 +287,36 @@ class ProjectData:
 
     def prev_file(self):
         self.current_file = (self.current_file - 1 + len(self.config["files"])) % len(self.config["files"])
+
+    def get_functions(self):
+        header = self.datafile.get_data_header()
+        return self.config[str(header)]["functions"]
+
+    def add_function(self, fs):
+        header = self.datafile.get_data_header()
+        new_header = header + [fs.name]
+        self.config[str(new_header)] = self.config[str(header)]
+        self.config[str(new_header)]["functions"].append(fs.name)
+
+        self.datafile.add_function(fs)
+        self.modified = True
+
+    def remove_function(self, index):
+        header = self.datafile.get_data_header()
+        conf = self.config[str(header)]
+
+        f_name = conf["functions"][index]
+        f_col = self.datafile.get_data_columns()[header.index(f_name)]
+        for plot in conf["plot"]:
+            if f_col in plot:
+                plot.remove(f_col)
+            for i, col in enumerate(plot):
+                if col > f_col:
+                    plot[i] = col - 1
+
+        self.datafile.remove_function(f_name)
+        del conf["functions"][index]
+        self.modified = True
 
 
 class Config:

@@ -3,6 +3,9 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from core import PlotCanvas
 from settings import SettingsWindow
+from functions.controller import FunctionController, FunctionDialog
+from functions.time_function import TimeFunction
+import config
 
 
 class PicButton(QAbstractButton):
@@ -42,7 +45,6 @@ class OpeningWindow(QMainWindow):
         # Geometry: left, top, width, height
         self.setGeometry(450, 300, 700, 500)
         self.setWindowTitle('Time Series Labeler')
-        self.setWindowIcon(QIcon('./assets/icon_green.png'))
 
         self._init()
 
@@ -109,8 +111,6 @@ class LabelerWindow(QMainWindow):
         self.plot_canvas = PlotCanvas(self)
 
         self.setWindowTitle('Time Series Labeler')
-        self.setWindowIcon(QIcon('./assets/icon_green.png'))
-
         self._init()
 
     def _init(self):
@@ -186,6 +186,15 @@ class LabelerWindow(QMainWindow):
         prev_label.triggered.connect(self.plot_canvas.prev_label)
         customize_label.triggered.connect(lambda: self.open_settings(1))
 
+        # Functions
+        functions = self.menubar.addMenu('Functions')
+        for i, function in enumerate(FunctionController.get_functions()):
+            func_entry = functions.addAction(function)
+            func_entry.triggered.connect(make_caller(self.open_function_setup, i))
+        functions.addSeparator()
+        self.remove_function = functions.addMenu("Remove function")
+        self.update_functions()
+
     def keyPressEvent(self, event):
         self.plot_canvas.on_key(event)
 
@@ -197,4 +206,29 @@ class LabelerWindow(QMainWindow):
         settings_window = SettingsWindow()
         settings_window.tabs.setCurrentIndex(active)
         settings_window.exec()
-        self.plot_canvas.reset()
+        self.plot_canvas.core.redraw()
+
+    def open_function_setup(self, func_index):
+        if FunctionController.add(func_index):
+            self.plot_canvas.modified = True
+            self.update_functions()
+
+    def open_function_removal(self, rem_index):
+        FunctionController.remove(rem_index)
+        self.plot_canvas.modified = True
+        self.plot_canvas.core.redraw()
+        self.update_functions()
+
+    def update_functions(self):
+        self.remove_function.clear()
+
+        conf = config.data_config
+        for i, func in enumerate(conf.get_functions()):
+            func_entry = self.remove_function.addAction(func)
+            func_entry.triggered.connect(make_caller(self.open_function_removal, i))
+
+
+def make_caller(method, index):
+    def caller():
+        method(index)
+    return caller
