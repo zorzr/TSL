@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Time Series Labeler</title>
+        <meta charset='utf-8' />
+        <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+        <meta name="description" content="Supervised learning tool for interactive labelling of time series"/>
+        <link rel="icon" href="https://github.githubassets.com/favicon.ico">
+
+        <link href="https://zorzr.github.io/stylesheets/stylesheet.css" rel="stylesheet" type="text/css" media="screen">
+        <link href='https://fonts.googleapis.com/css?family=Roboto:400,400italic,700italic,700' rel='stylesheet' type='text/css'>
+        <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,300italic,700,700italic' rel='stylesheet' type='text/css'>
+		
+		<style>
+			p { margin-bottom: 15px; }
+			
+			img {
+				display: block;
+				margin-left: auto;
+				margin-right: auto;
+				margin-bottom: 15px;
+			}
+		</style>
+	</head>
+    <body>
+
+        <!-- HEADER -->
+        <div id="header_wrap" class="outer">
+            <header class="inner">
+                <div id="home_wrap"><a id="home" href="https://zorzr.github.io/"></a></div>
+
+                <div id="banner">
+                    <a class="tab leftmost" href="https://zorzr.github.io/blog">Blog</a>
+                    <a class="tab" href="https://zorzr.github.io/projects">Projects</a>
+                    <a class="tab rightmost" href="https://zorzr.github.io/about">About me</a>
+                </div>
+
+                <h1 id="page_title">zorzr</h1>
+                <h2 id="page_tagline">Time Series Labeler</h2>
+            </header>
+        </div>
+
+        <!-- MAIN CONTENT -->
+        <div id="main_content_wrap" class="outer">
+            <section id="main_content" class="inner">
+			
+				<h1>Introduction</h1>
+				<p>
+				<b>Time Series Labeler</b> (or just <b>TSL</b>) is a Python-developed tool for time series analysis, labelling and processing on Windows, Linux and MacOS.
+				</p>
+				<img alt="Interface screenshot" src="resources/screenshot.png" width="80%"/>
+				<p>
+				It allows to plot multiple series at the same time, and provides features to manage the graphs layout. As the name suggests, labels can be put on some specific time lapses to identify a particular event (i.e. a machinery failure) and then be saved on the original data file.
+				</p><p>
+				Label names and colors are customizable from within the application and are stored in a specific configuration file for the type of selected project: in fact, you can choose to work on single files or manage bigger project for files containing the same kind of data (that is, the time series are indicated with the same name and are arranged in the same way for all files included in the project).
+				</p><p>
+				Furthermore, the application combines key bindings, mouse click and drag/drop to speed up operations and allow a quick context change from a file to the following. Zoom in and out is supported and can become really useful when managing really long series: high performances are granted by a downsampling algorithm which doesn't affect the usage and is completely transparent to the user.
+				</p><p>
+				Advanced signal processing feature is also provided: an expansible set of functions can be used to process the time series and plot the generated ones alongside the original (e.g. derivative, integral). The user could also choose the name of the new series to be generated and the parameters to be adopted bu the function algorithm.
+				</p>
+				
+				<h1>Table of content</h1>
+				Still working on the website
+
+            </section>
+        </div>
+    
+        
+        <!-- FOOTER  -->
+        <div id="footer_wrap" class="outer">
+            <footer class="inner">
+                <p class="footer">
+                    Original theme by <a href="https://github.com/jasoncostello/slate">Jason Costello</a><br>
+                    Powered by <a href="http://pages.github.com">GitHub Pages</a>
+                </p>
+            </footer>
+          </div>
+    </body>
+</html>
