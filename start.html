@@ -14,14 +14,13 @@
 		
 		<style>
 			p { margin-bottom: 15px; }
-			
-			img {
-				display: block;
-				margin-left: auto;
-				margin-right: auto;
-				margin-bottom: 15px;
-			}
-		</style>
+
+            #page_tagline a:hover {
+                color: #aaa;
+                border-bottom: 1px solid #777;
+            }
+
+        </style>
 	</head>
     <body>
 
@@ -37,7 +36,7 @@
                 </div>
 
                 <h1 id="page_title">zorzr</h1>
-                <h2 id="page_tagline">Time Series Labeler</h2>
+                <h2 id="page_tagline"><a href="https://zorzr.github.io/TSL">Time Series Labeler</a></h2>
             </header>
         </div>
 
@@ -45,26 +44,44 @@
         <div id="main_content_wrap" class="outer">
             <section id="main_content" class="inner">
 			
-				<h1>Introduction</h1>
-				<p>
-				<b>Time Series Labeler</b> (or just <b>TSL</b>) is a Python-developed tool for time series analysis, labelling and processing on Windows, Linux and MacOS.
-				</p>
-				<img alt="Interface screenshot" src="resources/screenshot.png" width="80%"/>
-				<p>
-				It allows to plot multiple series at the same time, and provides features to manage the graphs layout. As the name suggests, labels can be put on some specific time lapses to identify a particular event (i.e. a machinery failure) and then be saved on the original data file.
-				</p><p>
-				Label names and colors are customizable from within the application and are stored in a specific configuration file for the type of selected project: in fact, you can choose to work on single files or manage bigger project for files containing the same kind of data (that is, the time series are indicated with the same name and are arranged in the same way for all files included in the project).
-				</p><p>
-				Furthermore, the application combines key bindings, mouse click and drag/drop to speed up operations and allow a quick context change from a file to the following. Zoom in and out is supported and can become really useful when managing really long series: high performances are granted by a downsampling algorithm which doesn't affect the usage and is completely transparent to the user.
-				</p><p>
-				Advanced signal processing feature is also provided: an expansible set of functions can be used to process the time series and plot the generated ones alongside the original (e.g. derivative, integral). The user could also choose the name of the new series to be generated and the parameters to be adopted bu the function algorithm.
-                </p>
+				<h1>Getting started</h1>
+                <p>In this page you can find the basic information in order to work with the software.</p>
+                
+                <h2>Requirements</h2>
+                <ul>
+                    <li><a href="https://www.python.org/">Python 3</a></li>
+                    <li><a href="https://www.numpy.org/">NumPy library</a></li>
+                    <li><a href="https://pandas.pydata.org/">Pandas library</a></li>
+                    <li><a href="https://matplotlib.org/">Matplotlib library</a></li>
+                    <li><a href="https://github.com/javiljoen/lttb.py">LTTB library</a> by javiljoen</li>
+                </ul>
+
+                These libraries and their dependencies can be quickly installed by using the <a href="/resources/requirements.txt">requirements.txt</a> file and by tiping the following lines in a terminal (adopt the correct one for your OS)
+                
+                <h3>Windows</h3>
+                <pre><code>pip install -r requirements.txt</code></pre>
+
+                <h3>Linux/MacOS</h3>
+                <pre><code>pip3 install -r requirements.txt</code></pre>
                 <br>
-				
+                
+                <h1>Usage</h1>
+                <p>In order to run the application, you need to execute the main.py file.</p>
+                
+                <h3>Windows</h3>
+                <p>If you have the right file associations, just double-click on the file.
+                <br> In alternative, you can type on the command prompt:</p>
+                <pre><code>python main.py</code></pre>
+
+                <h3>Linux/MacOS</h3>
+                <p>Open a terminal instance and write the following command:</p>
+                <pre><code>python3 main.py</code></pre>
+                <br>
+
                 <h1>Table of contents</h1>
                 <ul>
-                    <li><b>Project home</b></li>
-                    <li><a href="https://zorzr.github.io/TSL/start">Getting started</a></li>
+                    <li><a href="https://zorzr.github.io/TSL">Project home</a></li>
+                    <li><b>Getting started</b></li>
                     <li><a href="https://github.com/zorzr/TSL">View on GitHub</a></li>
                 </ul>
 
