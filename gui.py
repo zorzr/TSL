@@ -41,10 +41,9 @@ class OpeningWindow(QMainWindow):
     def __init__(self, controller, **kwargs):
         super().__init__(**kwargs)
         self.controller = controller
-
-        # Geometry: left, top, width, height
-        self.setGeometry(450, 300, 700, 500)
+        
         self.setWindowTitle('Time Series Labeler')
+        self.setFixedSize(700, 500)
 
         self._init()
 
