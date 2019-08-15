@@ -3,13 +3,14 @@ from PyQt5.QtGui import *
 from settings import LabelTable, LabelDialog, pltc
 from functions.time_function import TimeFunction
 import config
+import dialogs
 
 
 # noinspection PyArgumentList
 class FunctionDialog(QDialog):
-    def __init__(self, parameters=None):
+    def __init__(self, title="Function setup", parameters=None):
         super().__init__()
-        self.setWindowTitle("Function setup")
+        self.setWindowTitle(title)
         ts_list = config.data_config.datafile.get_data_header()
 
         self.name = None
@@ -51,6 +52,15 @@ class FunctionDialog(QDialog):
                     widget.addItems(param["values"])
                     widget.setCurrentIndex(param["default"])
                     self.ret_func[key] = widget.currentText
+                elif param["type"] == "int":
+                    widget = QSpinBox()
+                    widget.setRange(param["min"], param["max"])
+                    widget.setValue(param["default"])
+                    self.ret_func[key] = widget.value
+                elif param["type"] == "double":  # TODO: replace with QDoubleSpinBox
+                    widget = QLineEdit()
+                    widget.setValidator(QDoubleValidator())
+                    self.ret_func[key] = widget.text
 
                 layout.addRow(QLabel(key), widget)
 
@@ -90,7 +100,7 @@ class FunctionController:
     def add(func_index):
         function = TimeFunction.__subclasses__()[func_index]()
 
-        dialog = FunctionDialog(function.get_parameters())
+        dialog = FunctionDialog(function.get_name(), function.get_parameters())
         dialog.exec()
 
         if dialog.name is None:
@@ -99,6 +109,11 @@ class FunctionController:
         data_conf = config.data_config
         ts = data_conf.datafile.get_series_to_process(dialog.source, dialog.name)
         fs = function.process_series(ts, dialog.parameters)
+
+        if fs is None:
+            dialogs.notify_function_error()
+            return False
+
         data_conf.add_function(fs)
         return True
 

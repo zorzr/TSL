@@ -229,8 +229,7 @@ class PlotCanvas(FigureCanvas):
             popup = RightClickMenu(self, index, event)
             popup.exec_()
             if popup.reload:
-                self.core.clear()
-                self.core.plot()
+                self.core.redraw()
 
     def on_mouse_release(self, event):
         if event.button not in (MOUSE_LEFT, MOUSE_RIGHT) or event.inaxes not in self.core.subplots:

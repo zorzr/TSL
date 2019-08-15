@@ -40,3 +40,14 @@ def notify_read_error(filename):
     ret = msg.exec_()
     if ret == QMessageBox.Close:
         exit(0)
+
+
+def notify_function_error():
+    msg = QMessageBox()
+    msg.setIcon(QMessageBox.Warning)
+    msg.setWindowTitle("Warning")
+    msg.setText("An error occurred while calculating the function.\n"
+                "Please check the validity of the input parameters.")
+    msg.setStyleSheet("QLabel { margin-right: 7px; }")
+
+    msg.exec_()
