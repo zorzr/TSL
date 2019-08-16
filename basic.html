@@ -15,6 +15,13 @@
 		<style>
 			p { margin-bottom: 15px; }
 
+			img {
+				display: block;
+				margin-left: auto;
+				margin-right: auto;
+				margin-bottom: 15px;
+			}
+
             #page_tagline a:hover {
                 color: #aaa;
                 border-bottom: 1px solid #777;
@@ -45,16 +52,50 @@
             <section id="main_content" class="inner">
 			
 				<h1>Basic functionalities</h1>
-                <p>In this page you can find the basic information in order to work with the software.</p>
+                <p>Below you can learn about the most common operations available and how they can be performed.</p>
                 <br>
 
                 <h2>Opening window</h2>
-                <p>Work in progress...</p>
+                <p>Once the main.py file has been started, the following window will show.</p>
+				<img alt="Opening window appearence" src="resources/screenshots/opening.png" width="80%"/>
+                <p>The stage is subdivided in two sections: the first is supposed to be adopted if one wants to work with a single file (or multiple
+                    heterogeneous files, i.e. files containing time series which are not related to each other), the last if one is interested in
+                    creating a project including a list of files in the same folder focused on the same type of time series.</p>
+                <blockquote><p>For instance, we could have one huge file containing the data acquired by some sensors in a vehicle (e.g. accelerometers) and
+                    another regarding the temperature of a certain environment (e.g. fridge): the data included in these files are not related, so
+                    the application doesn't consider them as well and treats each one independently. Instead, if one of these two files is splitted in
+                    multiple smaller files, these could be grouped in a folder and included in a project: they will share the same kind of labels and
+                    appearence, so there would be no need to manage each one singularly. This of course couldn't be done with heterogeneous contents.</p></blockquote>
+                
+                <p>In particular, three options are presented through the interface:</p>
+                <ul>
+                    <li><b>Open files</b>: the user can choose which files have to be opened.</li>
+                    <ul><li>Each file will have its own configuration file associated, containing all the relevant information regarding labels, layout, etc.</li></ul>
+
+                    <li><b>New project</b>: the application will ask the user which folder has to be used for the project.</li>
+                    <ul>
+                        <li>The files in the selected directory will be scanned, and if some compatible ones are found they are added in a list</li>
+                        <li>A wizard for the setup of the project will open, asking which files have to be included and which labels have to be shared among them.</li>
+                        <li>A single configuration file is generated, containing the list of included files, the labels and the layouts (grouped according to the files content).</li>
+                    </ul>
+
+                    <li><b>Open project</b>: the program asks for the just mentioned configuration file.</li>
+                </ul>
+                <blockquote>Please check which type of files are supported in the related documentation page.</blockquote>
                 <br>
 
                 <h2>Main window</h2>
                 <p>Work in progress...</p>
                 <br>
+
+
+                <h1>Table of contents</h1>
+                <ul>
+                    <li><a href="https://zorzr.github.io/TSL">Project home</a></li>
+                    <li><a href="https://zorzr.github.io/TSL/start">Getting started</a></li>
+                    <li><b>Basic functionalities</b></li>
+                    <li><a href="https://github.com/zorzr/TSL">View on GitHub</a></li>
+                </ul>
 
             </section>
         </div>
