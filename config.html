@@ -14,13 +14,6 @@
 		
 		<style>
 			p { margin-bottom: 15px; }
-
-			img {
-				display: block;
-				margin-left: auto;
-				margin-right: auto;
-				margin-bottom: 15px;
-			}
         </style>
 	</head>
     <body>
@@ -46,7 +39,58 @@
             <section id="main_content" class="inner">
 			
 				<h1>Configuration files</h1>
-                <p>Todo</p>
+                <p>As already mentioned in the <a href="https://zorzr.github.io/TSL/basic">Basic functionalities</a> page, there are two main types of usage
+                    for this application: one treating data files separately and the other one being more project-driven. This page will explain in deeper
+                    detail how these two options work by describing the different kinds of configuration files that are generated at runtime.</p>
+
+                
+                <h2>Separate files</h2>
+                <p>For single data files, a configuration file is generated for each one of them: the full name of the data file is used to generate the name
+                    of the corresponding configuration file. For instance, if there is a file named <code>data.csv</code> the configuration file will be named <code>data.csv<b>.json</b></code>.</p>
+                
+                <p>In particular, this type of configuration consists of a JSON file structured as follows.</p>
+                <ul>
+                    <li><b>labels</b>: the list of label names, indicates which columns in the data file represent a label</li>
+                    <li><b>colors</b>: the list of label colors, represented with a hex notation (e.g., #ff0000 for red)</li>
+                    <li><b>plot</b>: the layout of the plots, by default every subplot contains a single time series</li>
+                    <li><b>normalize</b>: list of plot indexes to be normalized (i.e., the scale is ignored for that plot)</li>
+                    <li><b>functions</b>: the names of the calculated function columns (allows to distinguish them from the others in order to be able to remove them at will)</li>
+                </ul>
+
+                
+                <h2>Project files</h2>
+                <p>When a new project is opened, the user selects the files to be included. From that point, all the relevant information for the proejct is stored in a single
+                    configuration file, called <code>project.json</code>, which is still a JSON file but structured differently than before.</p>
+                
+                <ul>
+                    <li><b>files</b>: list of data files in the current folder which are included in the project.</li>
+                    <li><b>labels</b>: list of label names (shared among all data files)</li>
+                    <li><b>colors</b>: list of label colors, still in hex notation (shared among all data files)</li>
+                    <li>Headers of the data files (if two have the same column names, they share the same layout)</li>
+                    <ul>
+                        <li><b>plot</b>: list representing the plot layout (shared among all data files with that header)</li>
+                        <li><b>normalize</b>: list of plots to be normalized (shared among all data files with that header)</li>
+                        <li><b>functions</b>: the names of the calculated function columns (included in the header)</li>
+                    </ul>
+                </ul>
+                <br>
+
+
+                <h1>Program files</h1>
+                <p>There are other two files adopted by the application which haven't been mentioned before: these can usually be found in the same folder as the TSL itself,
+                    but it is possible that if the program has no permission to read/write these files, they are stored somewhere else. Specifically, the alternative path
+                    is relative to the current user's folder:
+                    <pre><code>~/.config/tsl/</code></pre>
+                    where ~ is the user directory (whose absolute path is different according to the installed OS)
+                    <pre><code>Windows:&emsp;&emsp;C:/Users/[USERNAME]/<br>Linux:&emsp;&emsp;&emsp;/home/[USERNAME]/<br>MacOS:&emsp;&emsp;&emsp;/Users/[USERNAME]/</code></pre>
+                </p>
+                <br>
+                These files are:
+                <ul>
+                    <li><b>config.json</b>: a configuration file containing the user settings (e.g., autosave)</li>
+                    <li><b>tsl.log</b>: logging file for error reporting</li>
+                </ul>
+                <blockquote>Make sure to keep them in order to avoid unexpected behaviors!</blockquote>
                 <br>
 
 
