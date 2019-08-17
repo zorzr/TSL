@@ -14,13 +14,6 @@
 		
 		<style>
 			p { margin-bottom: 15px; }
-
-			img {
-				display: block;
-				margin-left: auto;
-				margin-right: auto;
-				margin-bottom: 15px;
-			}
         </style>
 	</head>
     <body>
@@ -46,7 +39,22 @@
             <section id="main_content" class="inner">
 			
 				<h1>Supported formats</h1>
-                <p>Todo</p>
+                <p>The TSL is composed of an expandible set of file formats whose design is pretty straighforward. An abstract <b>Format</b> class can be 
+                    inherited and requires just two basic read and write methods. The data stored in a file must be used to create a Pandas DataFrame (which
+                    is used by the application for all its needs) and viceversa.</p><p>Here's a list of the currently supported formats.</p>
+
+
+                <h2>CSV (Comma Separated Values)</h2>
+                The time series can be stored in comma-separated values (CSV) spreadsheets, which have a structure similar to the one reported below.
+
+                <pre><code>Timestamp,Series #1,Series #2<br>2019-08-01 10:00:00,1,2<br>2019-08-01 10:05:00,1,5<br>2019-08-01 10:10:00,2,0<br>2019-08-01 10:15:00,3,8<br>2019-08-01 10:20:00,5,1<br>2019-08-01 10:25:00,8,8</code></pre>
+                
+                <p>
+                The <code>Timestamp</code> column is optional, but can become really useful for accurate series processing: date/time strings like those above are generally accepted.
+                The CSV files can be obtained through common spreadsheet programs (like Microsoft Excel or Libreoffice Calc), but their management is also suitable for text editors.
+                </p>
+
+
                 <br>
 
 
