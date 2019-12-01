@@ -272,7 +272,6 @@ header {
 
 #nav-home {
   display: none;
-  /* visibility: hidden; */
 }
 
 /* Page content */
@@ -406,7 +405,6 @@ My additions
 .tab {
   color: white;
   padding: 8px 13px 8px 13px;
-  /* background: #0090ff; */
   font-weight: 700;
   border: none;
   line-height: 1.5;
@@ -430,10 +428,8 @@ My additions
 .tab:hover, .tab:focus {
   color: white;
   border-bottom: none;
-  /* background-color: #1883ed; */
-  outline: none;
-
   background: #0090ff;
+  outline: none;
 }
 
 
@@ -467,7 +463,6 @@ Small Device Styles
 
   #nav-home {
 	display: block;
-    /* visibility: visible; */
   }
 
   #nav-button {
