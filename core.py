@@ -206,7 +206,7 @@ class PlotCanvas(FigureCanvas):
         n_sub = len(plot_set)
 
         w, h = self.labeler.size().width(), self.labeler.size().height()
-        sw = 28  # scrollbar width
+        sw = 20  # scrollbar width (plus margins)
         mh = 1.2  # minimum subplot height
 
         toolbar_height = self.toolbar.sizeHint().height() / 100

@@ -137,6 +137,9 @@ class LabelerWindow(QMainWindow):
         palette.setColor(self.backgroundRole(), Qt.white)
         self.setPalette(palette)
 
+        # Fix background glitch by assigning a fixed scrollbar size
+        self.scroll.setStyleSheet("QScrollBar:vertical { width: 18px; }")
+
     def _menubar(self):
         self.menubar = self.menuBar()
 
