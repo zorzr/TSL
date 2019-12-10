@@ -61,6 +61,7 @@ class SettingsWindow(QDialog):
         self.close()
 
 
+# TODO: add option for minimum subplot height
 # noinspection PyArgumentList
 class GeneralTab(QWidget):
     def __init__(self):

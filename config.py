@@ -319,6 +319,7 @@ class ProjectData:
         self.modified = True
 
 
+# TODO: add option for minimum subplot height
 class Config:
     def __init__(self):
         self.path = None

@@ -109,7 +109,14 @@ class LabelerWindow(QMainWindow):
 
         self.setWindowTitle('Time Series Labeler')
         self.setGeometry(200, 200, 800, 600)
+        self.adjust_position()
         self._init()
+
+    def adjust_position(self):
+        center = QDesktopWidget().availableGeometry().center()
+        frame = self.frameGeometry()
+        frame.moveCenter(center)
+        self.move(frame.topLeft())
 
     def _init(self):
         central_widget = QWidget(flags=self.windowFlags())
