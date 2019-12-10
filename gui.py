@@ -3,8 +3,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from core import PlotCanvas
 from settings import SettingsWindow
-from functions.controller import FunctionController, FunctionDialog
-from functions.time_function import TimeFunction
+from functions.controller import FunctionController
 import config
 
 
@@ -109,7 +108,7 @@ class LabelerWindow(QMainWindow):
         self.controller = controller
 
         self.setWindowTitle('Time Series Labeler')
-        self.setGeometry(200, 200, 900, 700)
+        self.setGeometry(200, 200, 800, 600)
         self._init()
 
     def _init(self):
@@ -118,11 +117,6 @@ class LabelerWindow(QMainWindow):
         self.scroll = QScrollArea(central_widget)
         self.plot_canvas = PlotCanvas(self)
         self._menubar()
-
-        # layout = QVBoxLayout()
-        # layout.addWidget(self.plot_canvas, alignment=Qt.Alignment())
-        # layout.addWidget(self.plot_canvas.toolbar, alignment=Qt.Alignment())
-        # central_widget.setLayout(layout)
 
         layout = QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
@@ -138,7 +132,7 @@ class LabelerWindow(QMainWindow):
         self.setPalette(palette)
 
         # Fix background glitch by assigning a fixed scrollbar size
-        self.scroll.setStyleSheet("QScrollBar:vertical { width: 18px; }")
+        self.scroll.setStyleSheet("QScrollBar:vertical { width: 18px; }\nQScrollArea{ border: none; }")
 
     def _menubar(self):
         self.menubar = self.menuBar()
@@ -215,6 +209,10 @@ class LabelerWindow(QMainWindow):
         self.plot_canvas.quit()
         event.ignore()
 
+    def resizeEvent(self, event):
+        self.plot_canvas.figure_resize()
+        return super(LabelerWindow, self).resizeEvent(event)
+
     def open_settings(self, active=0):
         settings_window = SettingsWindow()
         settings_window.tabs.setCurrentIndex(active)
@@ -239,10 +237,6 @@ class LabelerWindow(QMainWindow):
         for i, func in enumerate(conf.get_functions()):
             func_entry = self.remove_function.addAction(func)
             func_entry.triggered.connect(make_caller(self.open_function_removal, i))
-
-    def resizeEvent(self, event):
-        self.plot_canvas.figure_resize()
-        return super(LabelerWindow, self).resizeEvent(event)
 
 
 def make_caller(method, index):

@@ -198,6 +198,7 @@ class PlotCanvas(FigureCanvas):
         self.toolbar.update_label()
         self.draw()
 
+    # noinspection PyPep8Naming
     def minimumSizeHint(self):
         return self.sizeHint()
 
@@ -207,7 +208,7 @@ class PlotCanvas(FigureCanvas):
 
         w, h = self.labeler.size().width(), self.labeler.size().height()
         sw = 20  # scrollbar width (plus margins)
-        mh = 1.2  # minimum subplot height
+        mh = 1.1  # minimum subplot height
 
         toolbar_height = self.toolbar.sizeHint().height() / 100
         menubar_height = self.labeler.menubar.sizeHint().height() / 100

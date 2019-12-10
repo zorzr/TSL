@@ -89,7 +89,7 @@ class FilesData:
                 with open(conf_path, 'w') as out_file:
                     json.dump(self.config, out_file)
             except IOError:
-                logger.error("Unable to write {}: permission denied".format(self.view_path))
+                logger.error("Unable to write {}: permission denied".format(conf_path))
                 exit(2)
             self.config_list[self.current_file] = conf_path
             self.modified = False
@@ -239,7 +239,7 @@ class ProjectData:
                 with open(self.project_file, 'w') as out_file:
                     json.dump(self.config, out_file)
             except IOError:
-                logger.error("Unable to write {}: permission denied".format(self.view_path))
+                logger.error("Unable to write {}: permission denied".format(self.project_file))
                 exit(2)
             self.modified = False
 
@@ -408,7 +408,7 @@ def init_project(folder, project_dict):
         with open(project_path, 'w') as out_file:
             json.dump(project_dict, out_file)
     except IOError:
-        logger.error("Unable to write {}: permission denied".format(self.view_path))
+        logger.error("Unable to write {}: permission denied".format(project_path))
         exit(2)
 
     if os.path.exists(project_path):
