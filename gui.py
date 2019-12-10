@@ -107,18 +107,29 @@ class LabelerWindow(QMainWindow):
     def __init__(self, controller, **kwargs):
         super().__init__(**kwargs)
         self.controller = controller
-        self.plot_canvas = PlotCanvas(self)
 
         self.setWindowTitle('Time Series Labeler')
+        self.setGeometry(200, 200, 900, 700)
         self._init()
 
     def _init(self):
         central_widget = QWidget(flags=self.windowFlags())
         self.setCentralWidget(central_widget)
+        self.scroll = QScrollArea(central_widget)
+        self.plot_canvas = PlotCanvas(self)
         self._menubar()
 
+        # layout = QVBoxLayout()
+        # layout.addWidget(self.plot_canvas, alignment=Qt.Alignment())
+        # layout.addWidget(self.plot_canvas.toolbar, alignment=Qt.Alignment())
+        # central_widget.setLayout(layout)
+
         layout = QVBoxLayout()
-        layout.addWidget(self.plot_canvas, alignment=Qt.Alignment())
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
+        self.scroll.setWidget(self.plot_canvas)
+        self.scroll.setWidgetResizable(True)
+        layout.addWidget(self.scroll, alignment=Qt.Alignment())
         layout.addWidget(self.plot_canvas.toolbar, alignment=Qt.Alignment())
         central_widget.setLayout(layout)
 
@@ -225,6 +236,10 @@ class LabelerWindow(QMainWindow):
         for i, func in enumerate(conf.get_functions()):
             func_entry = self.remove_function.addAction(func)
             func_entry.triggered.connect(make_caller(self.open_function_removal, i))
+
+    def resizeEvent(self, event):
+        self.plot_canvas.figure_resize()
+        return super(LabelerWindow, self).resizeEvent(event)
 
 
 def make_caller(method, index):

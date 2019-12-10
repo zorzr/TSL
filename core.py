@@ -175,7 +175,7 @@ class PlotCanvas(FigureCanvas):
         FigureCanvas.__init__(self, self.figure)
         self.labeler = window
 
-        self.setParent(window)
+        self.setParent(window.scroll)
         FigureCanvas.setSizePolicy(self, QSizePolicy.Expanding, QSizePolicy.Expanding)
         FigureCanvas.updateGeometry(self)
 
@@ -196,6 +196,27 @@ class PlotCanvas(FigureCanvas):
 
     def refresh(self):
         self.toolbar.update_label()
+        self.draw()
+
+    def minimumSizeHint(self):
+        return self.sizeHint()
+
+    def figure_resize(self):
+        plot_set, _ = config.data_config.get_plot_info()
+        n_sub = len(plot_set)
+
+        w, h = self.labeler.size().width(), self.labeler.size().height()
+        sw = 28  # scrollbar width
+        mh = 1.2  # minimum subplot height
+
+        toolbar_height = self.toolbar.sizeHint().height() / 100
+        menubar_height = self.labeler.menubar.sizeHint().height() / 100
+        eh = toolbar_height + menubar_height + 0.1  # extra height to be considered
+
+        width = (w - sw) / 100
+        height = max(n_sub * mh, (h / 100) - eh)
+
+        self.figure.set_size_inches(width, height, forward=True)
         self.draw()
 
     def same_index(self, new_x):
