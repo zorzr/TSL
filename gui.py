@@ -225,14 +225,7 @@ class LabelerWindow(QMainWindow):
         settings_window.tabs.setCurrentIndex(active)
         settings_window.exec()
         self.plot_canvas.core.redraw()
-
-        # TODO: improve
-        # I honestly don't know how this can work, but it apparently does
-        self.centralWidget().setStyleSheet("opacity: 0;")
-        QTimer.singleShot(500, lambda: self.centralWidget().setStyleSheet("opacity: 1;"))
-
-        self.plot_canvas.figure_resize()
-        self.scroll.adjustSize()
+        self.update_dimensions()
 
     def open_function_setup(self, func_index):
         if FunctionController.add(func_index):
@@ -252,6 +245,16 @@ class LabelerWindow(QMainWindow):
         for i, func in enumerate(conf.get_functions()):
             func_entry = self.remove_function.addAction(func)
             func_entry.triggered.connect(make_caller(self.open_function_removal, i))
+
+    # TODO: improve
+    def update_dimensions(self):
+        # I honestly don't know how this can work, but it apparently does
+        self.centralWidget().setStyleSheet("opacity: 0;")
+        QTimer.singleShot(500, lambda: self.centralWidget().setStyleSheet("opacity: 1;"))
+
+        self.plot_canvas.figure_resize()
+        self.scroll.adjustSize()
+
 
 
 def make_caller(method, index):

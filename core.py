@@ -43,7 +43,7 @@ class PlotCore:
 
     def plot(self):
         datafile = config.data_config.datafile
-        plot_set, normalize = config.data_config.get_plot_info()
+        plot_set, normalize = config.get_plot_info()
         header = list(datafile.df)
 
         n_sub = len(plot_set)
@@ -71,7 +71,7 @@ class PlotCore:
         x2 = max(self.canvas.prev_x, new_x)
 
         datafile = config.data_config.datafile
-        label, color = config.data_config.get_current_label()
+        label, color = config.get_current_label()
 
         if not self.timestamp:
             n_rows = datafile.df.shape[0]
@@ -203,7 +203,7 @@ class PlotCanvas(FigureCanvas):
         return self.sizeHint()
 
     def figure_resize(self):
-        plot_set, _ = config.data_config.get_plot_info()
+        plot_set, _ = config.get_plot_info()
         n_sub = len(plot_set)
 
         w, h = self.labeler.size().width(), self.labeler.size().height()
@@ -224,7 +224,7 @@ class PlotCanvas(FigureCanvas):
 
     def same_index(self, new_x):
         if not self.core.timestamp:
-            n_rows = config.data_config.datafile.df.shape[0]
+            n_rows = config.data_config.datafile.df.shape[0]  # TODO: get_shape() or get_datafile()
             x1 = max(int(round(self.prev_x)), 0)
             x2 = max(int(round(new_x)), 0)
             x1 = min(x1, n_rows-1)
@@ -299,12 +299,13 @@ class PlotCanvas(FigureCanvas):
         self.prev_x = None
         self.modified = False
         self.core.reset()
+        self.labeler.update_dimensions()
         self.labeler.update_functions()
 
     def save(self):
         if self.modified:
-            config.data_config.save_file()
-        config.data_config.save_config()
+            config.save_file()
+        config.save_data_config()
         self.modified = False
 
     def next_label(self):
@@ -390,7 +391,7 @@ class PlotToolbar(NavigationToolbar):
         self.canvas.next_file()
 
     def update_label(self):
-        text, color = config.data_config.get_current_label()
+        text, color = config.get_current_label()
 
         image = QPixmap(15, 15).toImage()
         qt_color = QColor(to_hex(color))

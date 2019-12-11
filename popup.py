@@ -42,7 +42,7 @@ class RightClickMenu(QMenu):
         # Plot content (allows to customize the plotted series)
         datafile = config.data_config.datafile
         data_columns = datafile.get_data_columns()
-        self.plot_set, self.normalize = config.data_config.get_plot_info()
+        self.plot_set, self.normalize = config.get_plot_info()
 
         plot_menu = self.addMenu("Plot content")
         for i, col in enumerate(datafile.get_data_header()):
@@ -95,7 +95,7 @@ class RightClickMenu(QMenu):
             self.plot_set[self.plot_index].remove(data_columns[value])
         else:
             self.plot_set[self.plot_index].append(data_columns[value])
-        config.data_config.set_plot_info(self.plot_set, self.normalize)
+        config.set_plot_info(self.plot_set, self.normalize)
 
     def normalize_plot(self):
         if self.plot_index in self.normalize:
@@ -103,29 +103,29 @@ class RightClickMenu(QMenu):
         else:
             self.normalize.append(self.plot_index)
             self.normalize.sort()
-        config.data_config.set_plot_info(self.plot_set, self.normalize)
+        config.set_plot_info(self.plot_set, self.normalize)
 
     def add_before(self):
         self.plot_set.insert(self.plot_index, [])
         self.normalize = [i if i < self.plot_index else i+1 for i in self.normalize[:]]
-        config.data_config.set_plot_info(self.plot_set, self.normalize)
+        config.set_plot_info(self.plot_set, self.normalize)
 
     def add_after(self):
         self.plot_set.insert(self.plot_index + 1, [])
         self.normalize = [i+1 if i > self.plot_index else i for i in self.normalize[:]]
-        config.data_config.set_plot_info(self.plot_set, self.normalize)
+        config.set_plot_info(self.plot_set, self.normalize)
 
     def clear_plot(self):
         self.plot_set[self.plot_index] = []
-        config.data_config.set_plot_info(self.plot_set, self.normalize)
+        config.set_plot_info(self.plot_set, self.normalize)
 
     def remove_plot(self):
         del self.plot_set[self.plot_index]
         self.normalize.remove(self.plot_index) if self.plot_index in self.normalize else None
         self.normalize = [i if i < self.plot_index else i-1 for i in self.normalize[:]]
-        config.data_config.set_plot_info(self.plot_set, self.normalize)
+        config.set_plot_info(self.plot_set, self.normalize)
 
     def reset_all(self):
         self.plot_set = [[i] for i in config.data_config.datafile.get_data_columns()]
         self.normalize = []
-        config.data_config.set_plot_info(self.plot_set, self.normalize)
+        config.set_plot_info(self.plot_set, self.normalize)

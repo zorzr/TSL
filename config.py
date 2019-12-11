@@ -465,5 +465,16 @@ def get_plot_info():
 def get_labels_info():
     return data_config.get_labels_info()
 
+def get_current_label():
+    return data_config.get_current_label()
+
+def set_plot_info(plot_set, normalize):
+    data_config.set_plot_info(plot_set, normalize)
+
 def set_labels_info(names, colors):
     data_config.set_labels_info(names, colors)
+
+def save_data_config():
+    data_config.save_config()
+def save_file():
+    data_config.save_file()
