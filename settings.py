@@ -5,6 +5,21 @@ import matplotlib.colors as pltc
 import config
 
 
+def spacer_widget(x_pol, y_pol):
+    spacer = QWidget()
+    spacer.setSizePolicy(x_pol, y_pol)
+    return spacer
+
+
+def stack_horizontally(widget1, widget2):
+    layout = QHBoxLayout()
+    layout.addWidget(widget1)
+    layout.addWidget(widget2)
+    background_widget = QWidget()
+    background_widget.setLayout(layout)
+    return background_widget
+
+
 # noinspection PyArgumentList
 class SettingsWindow(QDialog):
     def __init__(self):
@@ -40,9 +55,7 @@ class SettingsWindow(QDialog):
         apply_button.clicked.connect(self.apply)
         cancel_button.clicked.connect(self.cancel)
 
-        spacer = QWidget()
-        spacer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
-        button_layout.addWidget(spacer)
+        button_layout.addWidget(spacer_widget(QSizePolicy.Expanding, QSizePolicy.Minimum))
         button_layout.addWidget(cancel_button)
         button_layout.addWidget(apply_button)
         button_layout.addWidget(ok_button)
@@ -66,19 +79,69 @@ class SettingsWindow(QDialog):
 class GeneralTab(QWidget):
     def __init__(self):
         super().__init__()
-        self.autosave = QCheckBox("Autosave", self)
-        self.autosave.setChecked(config.tsl_config.config["autosave"])
-        self.autosave.move(40, 40)
+        self._init()
+
+    def _init(self):
+        grid = QGridLayout()
+
+        global_group = QGroupBox("Global")
+        plotting_group = QGroupBox("Plotting")
+        global_group.setStyleSheet("QGroupBox QWidget { margin: 15px; }")
+
+        self.autosave = QCheckBox("Autosave")
+        self.plot_height = QSlider(Qt.Horizontal)
+        self.plot_number = QSpinBox()
+
+        gg_layout = QVBoxLayout()
+        gg_layout.addWidget(self.autosave)
+        gg_layout.addWidget(spacer_widget(QSizePolicy.Minimum, QSizePolicy.Expanding))
+        global_group.setLayout(gg_layout)
+
+        pg_layout = QFormLayout()
+        pg_layout.addRow("Plots height", self.plot_height)
+        pg_layout.addRow("Max simultaneous plots   ", self.plot_number)
+        plotting_group.setLayout(pg_layout)
+
+        current_height = int(config.tsl_config.config["plot_height"] * 100)  # TODO: find a better way
+        self.plot_height.setRange(50, 200); self.plot_height.setValue(current_height)
+        self.plot_height.setSingleStep(10); self.plot_height.setTickInterval(1)
+        self.plot_number.setRange(1, 10); self.plot_number.setStyleSheet("margin-left: 110px")
+        self.height_change()
+
+        self.plot_height.valueChanged.connect(self.height_change)
+        self.plot_number.valueChanged.connect(self.number_change)
 
         title = QLabel("TSL (Time Series Labeler)", self)
         title.setFont(QFont("Times", 10, QFont.Bold))
         credit = QLabel("Developed by zorzr\nLicensed under GPL v3.0", self)
-        title.move(390, 320)
-        credit.move(390, 338)
+        cr_layout = QVBoxLayout()
+        cr_layout.addWidget(spacer_widget(QSizePolicy.Minimum, QSizePolicy.Expanding))
+        cr_layout.addWidget(title)
+        cr_layout.addWidget(credit)
+        bg_widget = QWidget()
+        bg_widget.setLayout(cr_layout)
+
+        grid.addWidget(global_group, 0, 0, 1, 2)
+        grid.addWidget(plotting_group, 0, 2, 1, 2)
+        grid.addWidget(bg_widget, 1, 0, 1, 2)
+        self.setLayout(grid)
 
     def apply(self):
         conf = config.tsl_config.config
         conf["autosave"] = self.autosave.isChecked()
+        conf["plot_height"] = self.plot_height.value() / 100
+
+    def height_change(self):
+        height = self.plot_height.value()
+        number = int(550 / height)  # approximation
+        if self.plot_number.value() != number:
+            self.plot_number.setValue(number)
+
+    def number_change(self):
+        number = self.plot_number.value()
+        height = int(550 / number)  # approximation
+        if self.plot_height.value() != height:
+            self.plot_height.setValue(height)
 
 
 # noinspection PyArgumentList
@@ -93,8 +156,6 @@ class LabelsTab(QWidget):
 
         panel_layout = QHBoxLayout()
         panel = QWidget()
-        spacer = QWidget()
-        spacer.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Minimum)
         add_button = QPushButton("Add")
         edit_button = QPushButton("Edit")
         remove_button = QPushButton("Remove")
@@ -106,7 +167,7 @@ class LabelsTab(QWidget):
         panel_layout.addWidget(add_button)
         panel_layout.addWidget(edit_button)
         panel_layout.addWidget(remove_button)
-        panel_layout.addWidget(spacer)
+        panel_layout.addWidget(spacer_widget(QSizePolicy.Expanding, QSizePolicy.Minimum))
 
         tab_layout = QVBoxLayout()
         tab_layout.addWidget(self.table)

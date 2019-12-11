@@ -1,4 +1,4 @@
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from core import PlotCanvas
@@ -225,6 +225,14 @@ class LabelerWindow(QMainWindow):
         settings_window.tabs.setCurrentIndex(active)
         settings_window.exec()
         self.plot_canvas.core.redraw()
+
+        # TODO: improve
+        # I honestly don't know how this can work, but it apparently does
+        self.centralWidget().setStyleSheet("opacity: 0;")
+        QTimer.singleShot(500, lambda: self.centralWidget().setStyleSheet("opacity: 1;"))
+
+        self.plot_canvas.figure_resize()
+        self.scroll.adjustSize()
 
     def open_function_setup(self, func_index):
         if FunctionController.add(func_index):

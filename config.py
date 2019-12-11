@@ -319,12 +319,12 @@ class ProjectData:
         self.modified = True
 
 
-# TODO: add option for minimum subplot height
+# TODO: add getters and setters
 class Config:
     def __init__(self):
         self.path = None
         self.config = None
-        self.default = {"autosave": False}
+        self.default = {"autosave": False, "plot_height": 1.1}
         self.init()
 
     def init(self):

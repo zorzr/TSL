@@ -208,7 +208,9 @@ class PlotCanvas(FigureCanvas):
 
         w, h = self.labeler.size().width(), self.labeler.size().height()
         sw = 20  # scrollbar width (plus margins)
-        mh = 1.1  # minimum subplot height
+
+        # TODO: adjust height (overflows a bit because of ticks)
+        mh = config.tsl_config.config["plot_height"]  # minimum subplot height
 
         toolbar_height = self.toolbar.sizeHint().height() / 100
         menubar_height = self.labeler.menubar.sizeHint().height() / 100
