@@ -319,12 +319,11 @@ class ProjectData:
         self.modified = True
 
 
-# TODO: add getters and setters
 class Config:
     def __init__(self):
         self.path = None
         self.config = None
-        self.default = {"autosave": False, "plot_height": 1.1}
+        self.default = {"autosave": False, "plot_height": 1.08}
         self.init()
 
     def init(self):
@@ -437,3 +436,34 @@ except IOError:
 
 tsl_config = Config()
 data_config = None
+
+
+# TODO: refactoring, much easier to use these functions instead of getting the object instances first
+############################################
+# Experimental getters (possible refactor?)
+############################################
+def get_autosave():
+    return tsl_config.config["autosave"]
+
+def get_plot_height():
+    return tsl_config.config["plot_height"]
+
+def set_tsl_config(autosave=None, plot_height=None):
+    if autosave is not None:
+        tsl_config.config["autosave"] = autosave
+    if plot_height is not None:
+        tsl_config.config["plot_height"] = plot_height
+
+def save_tsl_config():
+    tsl_config.save()
+
+
+# Data config
+def get_plot_info():
+    return data_config.get_plot_info()
+
+def get_labels_info():
+    return data_config.get_labels_info()
+
+def set_labels_info(names, colors):
+    data_config.set_labels_info(names, colors)

@@ -68,13 +68,12 @@ class SettingsWindow(QDialog):
     def apply(self):
         self.general.apply()
         self.labels.apply()
-        config.tsl_config.save()
+        config.save_tsl_config()
 
     def cancel(self):
         self.close()
 
 
-# TODO: add option for minimum subplot height
 # noinspection PyArgumentList
 class GeneralTab(QWidget):
     def __init__(self):
@@ -88,29 +87,38 @@ class GeneralTab(QWidget):
         plotting_group = QGroupBox("Plotting")
         global_group.setStyleSheet("QGroupBox QWidget { margin: 15px; }")
 
+        # Global settings (Autosave)
         self.autosave = QCheckBox("Autosave")
-        self.plot_height = QSlider(Qt.Horizontal)
-        self.plot_number = QSpinBox()
+        self.autosave.setChecked(config.get_autosave())
 
         gg_layout = QVBoxLayout()
         gg_layout.addWidget(self.autosave)
         gg_layout.addWidget(spacer_widget(QSizePolicy.Minimum, QSizePolicy.Expanding))
         global_group.setLayout(gg_layout)
 
+        # Plot settings (height/number of simultaneous subplots)
+        self.plot_height = QSlider(Qt.Horizontal)
+        self.plot_number = QSpinBox()
+
         pg_layout = QFormLayout()
         pg_layout.addRow("Plots height", self.plot_height)
         pg_layout.addRow("Max simultaneous plots   ", self.plot_number)
         plotting_group.setLayout(pg_layout)
 
-        current_height = int(config.tsl_config.config["plot_height"] * 100)  # TODO: find a better way
-        self.plot_height.setRange(50, 200); self.plot_height.setValue(current_height)
-        self.plot_height.setSingleStep(10); self.plot_height.setTickInterval(1)
-        self.plot_number.setRange(1, 10); self.plot_number.setStyleSheet("margin-left: 110px")
+        current_height = int(config.get_plot_height() * 100)
+        self.plot_height.setRange(50, 275)
+        self.plot_height.setValue(current_height)
+        self.plot_height.setSingleStep(10)
+        self.plot_height.setTickInterval(1)
+
+        self.plot_number.setRange(2, 10)
+        self.plot_number.setStyleSheet("margin-left: 110px")
         self.height_change()
 
         self.plot_height.valueChanged.connect(self.height_change)
         self.plot_number.valueChanged.connect(self.number_change)
 
+        # Credits
         title = QLabel("TSL (Time Series Labeler)", self)
         title.setFont(QFont("Times", 10, QFont.Bold))
         credit = QLabel("Developed by zorzr\nLicensed under GPL v3.0", self)
@@ -121,25 +129,26 @@ class GeneralTab(QWidget):
         bg_widget = QWidget()
         bg_widget.setLayout(cr_layout)
 
+        # Tab layout
         grid.addWidget(global_group, 0, 0, 1, 2)
         grid.addWidget(plotting_group, 0, 2, 1, 2)
         grid.addWidget(bg_widget, 1, 0, 1, 2)
         self.setLayout(grid)
 
     def apply(self):
-        conf = config.tsl_config.config
-        conf["autosave"] = self.autosave.isChecked()
-        conf["plot_height"] = self.plot_height.value() / 100
+        autosave = self.autosave.isChecked()
+        plot_h = self.plot_height.value() / 100
+        config.set_tsl_config(autosave=autosave, plot_height=plot_h)
 
     def height_change(self):
         height = self.plot_height.value()
-        number = int(550 / height)  # approximation
+        number = int(540 / height)  # approximation
         if self.plot_number.value() != number:
             self.plot_number.setValue(number)
 
     def number_change(self):
         number = self.plot_number.value()
-        height = int(550 / number)  # approximation
+        height = int(540 / number)  # approximation
         if self.plot_height.value() != height:
             self.plot_height.setValue(height)
 
@@ -148,7 +157,7 @@ class GeneralTab(QWidget):
 class LabelsTab(QWidget):
     def __init__(self):
         super().__init__()
-        labels, colors = config.data_config.get_labels_info()
+        labels, colors = config.get_labels_info()
         labels_list = [(labels[i], colors[i]) for i in range(len(labels))]
 
         self.table = LabelTable(labels_list)
@@ -222,7 +231,7 @@ class LabelsTab(QWidget):
 
     def apply(self):
         names, colors = self.table.generate_labels_list()
-        config.data_config.set_labels_info(names, colors)
+        config.set_labels_info(names, colors)
 
 
 class LabelTable(QTableWidget):
