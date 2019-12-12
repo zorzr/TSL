@@ -7,6 +7,18 @@ from functions.controller import FunctionController
 import config
 
 
+class ScrollCanvas(QScrollArea):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+
+        # Fix background glitch by assigning a fixed scrollbar size
+        self.setStyleSheet("QScrollBar:vertical { width: 18px; }\nQScrollArea{ border: none; }")
+
+    def keyPressEvent(self, event):
+        event.ignore()
+
+
 class PicButton(QAbstractButton):
     def __init__(self, default, hover, pressed, parent=None):
         super(PicButton, self).__init__(parent)
@@ -121,25 +133,24 @@ class LabelerWindow(QMainWindow):
     def _init(self):
         central_widget = QWidget(flags=self.windowFlags())
         self.setCentralWidget(central_widget)
-        self.scroll = QScrollArea(central_widget)
+
+        self.scroll_canvas = ScrollCanvas(central_widget)
         self.plot_canvas = PlotCanvas(self)
         self._menubar()
+
+        self.scroll_canvas.setWidget(self.plot_canvas)
+        self.scroll_canvas.setWidgetResizable(True)
 
         layout = QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
-        self.scroll.setWidget(self.plot_canvas)
-        self.scroll.setWidgetResizable(True)
-        layout.addWidget(self.scroll, alignment=Qt.Alignment())
+        layout.addWidget(self.scroll_canvas, alignment=Qt.Alignment())
         layout.addWidget(self.plot_canvas.toolbar, alignment=Qt.Alignment())
         central_widget.setLayout(layout)
 
         palette = self.palette()
         palette.setColor(self.backgroundRole(), Qt.white)
         self.setPalette(palette)
-
-        # Fix background glitch by assigning a fixed scrollbar size
-        self.scroll.setStyleSheet("QScrollBar:vertical { width: 18px; }\nQScrollArea{ border: none; }")
 
     def _menubar(self):
         self.menubar = self.menuBar()
@@ -253,8 +264,7 @@ class LabelerWindow(QMainWindow):
         QTimer.singleShot(500, lambda: self.centralWidget().setStyleSheet("opacity: 1;"))
 
         self.plot_canvas.figure_resize()
-        self.scroll.adjustSize()
-
+        self.scroll_canvas.adjustSize()
 
 
 def make_caller(method, index):

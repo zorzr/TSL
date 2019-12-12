@@ -323,7 +323,7 @@ class Config:
     def __init__(self):
         self.path = None
         self.config = None
-        self.default = {"autosave": False, "plot_height": 1.08}
+        self.default = {"autosave": False, "plot_height": 1.06}
         self.init()
 
     def init(self):

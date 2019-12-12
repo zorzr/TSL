@@ -175,7 +175,7 @@ class PlotCanvas(FigureCanvas):
         FigureCanvas.__init__(self, self.figure)
         self.labeler = window
 
-        self.setParent(window.scroll)
+        self.setParent(window.scroll_canvas)
         FigureCanvas.setSizePolicy(self, QSizePolicy.Expanding, QSizePolicy.Expanding)
         FigureCanvas.updateGeometry(self)
 

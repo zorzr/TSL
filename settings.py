@@ -106,10 +106,9 @@ class GeneralTab(QWidget):
         plotting_group.setLayout(pg_layout)
 
         current_height = int(config.get_plot_height() * 100)
-        self.plot_height.setRange(50, 275)
+        self.plot_height.setRange(50, 270)
         self.plot_height.setValue(current_height)
-        self.plot_height.setSingleStep(10)
-        self.plot_height.setTickInterval(1)
+        self.plot_height.setSingleStep(1)
 
         self.plot_number.setRange(2, 10)
         self.plot_number.setStyleSheet("margin-left: 110px")
@@ -142,13 +141,13 @@ class GeneralTab(QWidget):
 
     def height_change(self):
         height = self.plot_height.value()
-        number = int(540 / height)  # approximation
+        number = int(530 / height)  # approximation
         if self.plot_number.value() != number:
             self.plot_number.setValue(number)
 
     def number_change(self):
         number = self.plot_number.value()
-        height = int(540 / number)  # approximation
+        height = int(530 / number)  # approximation
         if self.plot_height.value() != height:
             self.plot_height.setValue(height)
 
