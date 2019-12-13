@@ -38,12 +38,12 @@ class PlotCore:
         self.plot()
 
     def reset(self):
-        config.data_config.read()
+        config.read_data_config()
         self.redraw()
 
     def plot(self):
-        datafile = config.data_config.datafile
-        plot_set, normalize = config.data_config.get_plot_info()
+        datafile = config.get_datafile()
+        plot_set, normalize = config.get_plot_info()
         header = list(datafile.df)
 
         n_sub = len(plot_set)
@@ -70,11 +70,11 @@ class PlotCore:
         x1 = min(self.canvas.prev_x, new_x)
         x2 = max(self.canvas.prev_x, new_x)
 
-        datafile = config.data_config.datafile
-        label, color = config.data_config.get_current_label()
+        datafile = config.get_datafile()
+        label, color = config.get_current_label()
 
         if not self.timestamp:
-            n_rows = datafile.df.shape[0]
+            n_rows = datafile.get_shape()
             a = max(int(round(x1)), 0)
             b = max(int(round(x2)), 0)
             x1 = min(a, n_rows-1)
@@ -106,7 +106,7 @@ class PlotCore:
 
         for plots in self.plotters:
             plots.remove_rect(clk)
-        del config.data_config.datafile.labels_list[clk]
+        del config.get_datafile().labels_list[clk]
 
         self.canvas.modified = True
         self.canvas.draw()
@@ -123,8 +123,8 @@ class PlotCore:
             return index[-1]
 
     def insert_labels(self):
-        data_config = config.data_config
-        for lab in data_config.datafile.labels_list:
+        datafile = config.get_datafile()
+        for lab in datafile.labels_list:
             if self.timestamp:
                 x1 = self.timestamp[lab[1][0]]
                 x2 = self.timestamp[lab[1][1]]
@@ -140,7 +140,7 @@ class PlotCore:
                     x2 = x2 + 0.5
 
             for plot in self.plotters:
-                plot.add_rect(x1=x1, x2=x2, color=data_config.get_label_color(lab[0]))
+                plot.add_rect(x1=x1, x2=x2, color=config.get_label_color(lab[0]))
 
     def manage_empty(self):
         x_lim = None
@@ -175,7 +175,7 @@ class PlotCanvas(FigureCanvas):
         FigureCanvas.__init__(self, self.figure)
         self.labeler = window
 
-        self.setParent(window)
+        self.setParent(window.scroll_canvas)
         FigureCanvas.setSizePolicy(self, QSizePolicy.Expanding, QSizePolicy.Expanding)
         FigureCanvas.updateGeometry(self)
 
@@ -198,9 +198,32 @@ class PlotCanvas(FigureCanvas):
         self.toolbar.update_label()
         self.draw()
 
+    # noinspection PyPep8Naming
+    def minimumSizeHint(self):
+        return self.sizeHint()
+
+    def figure_resize(self):
+        plot_set, _ = config.get_plot_info()
+        n_sub = len(plot_set)
+
+        w, h = self.labeler.size().width(), self.labeler.size().height()
+        sw = 20  # scrollbar width (plus margins)
+        mh = config.get_plot_height()  # minimum subplot height
+
+        toolbar_height = self.toolbar.sizeHint().height() / 100
+        menubar_height = self.labeler.menubar.sizeHint().height() / 100
+        eh = toolbar_height + menubar_height + 0.1  # extra height to be considered
+
+        width = (w - sw) / 100
+        height = max(n_sub * mh, (h / 100) - eh)
+
+        self.figure.set_size_inches(width, height, forward=True)
+        self.draw()
+
     def same_index(self, new_x):
         if not self.core.timestamp:
-            n_rows = config.data_config.datafile.df.shape[0]
+            datafile = config.get_datafile()
+            n_rows = datafile.get_shape()
             x1 = max(int(round(self.prev_x)), 0)
             x2 = max(int(round(new_x)), 0)
             x1 = min(x1, n_rows-1)
@@ -275,47 +298,48 @@ class PlotCanvas(FigureCanvas):
         self.prev_x = None
         self.modified = False
         self.core.reset()
+        self.labeler.update_dimensions()
         self.labeler.update_functions()
 
     def save(self):
         if self.modified:
-            config.data_config.save_file()
-        config.data_config.save_config()
+            config.save_file()
+        config.save_data_config()
         self.modified = False
 
     def next_label(self):
-        config.data_config.next_label()
+        config.next_label()
         self.toolbar.update_label()
 
     def prev_label(self):
-        config.data_config.prev_label()
+        config.prev_label()
         self.toolbar.update_label()
 
     def next_file(self):
-        if self.modified or config.data_config.modified:
-            if config.tsl_config.config["autosave"]:
+        if self.modified or config.is_modified():
+            if config.get_autosave():
                 self.save()
             else:
                 answer = dialogs.ask_to_continue()
                 if not answer:
                     return
-        config.data_config.next_file()
+        config.next_file()
         self.reset()
 
     def prev_file(self):
-        if self.modified or config.data_config.modified:
-            if config.tsl_config.config["autosave"]:
+        if self.modified or config.is_modified():
+            if config.get_autosave():
                 self.save()
             else:
                 answer = dialogs.ask_to_continue()
                 if not answer:
                     return
-        config.data_config.prev_file()
+        config.prev_file()
         self.reset()
 
     def quit(self):
-        if self.modified or config.data_config.modified:
-            if config.tsl_config.config["autosave"]:
+        if self.modified or config.is_modified():
+            if config.get_autosave():
                 self.save()
             else:
                 answer = dialogs.ask_to_continue()
@@ -366,7 +390,7 @@ class PlotToolbar(NavigationToolbar):
         self.canvas.next_file()
 
     def update_label(self):
-        text, color = config.data_config.get_current_label()
+        text, color = config.get_current_label()
 
         image = QPixmap(15, 15).toImage()
         qt_color = QColor(to_hex(color))

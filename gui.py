@@ -1,11 +1,22 @@
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from core import PlotCanvas
 from settings import SettingsWindow
-from functions.controller import FunctionController, FunctionDialog
-from functions.time_function import TimeFunction
+from functions.controller import FunctionController
 import config
+
+
+class ScrollCanvas(QScrollArea):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+
+        # Fix background glitch by assigning a fixed scrollbar size
+        self.setStyleSheet("QScrollBar:vertical { width: 18px; }\nQScrollArea{ border: none; }")
+
+    def keyPressEvent(self, event):
+        event.ignore()
 
 
 class PicButton(QAbstractButton):
@@ -107,18 +118,33 @@ class LabelerWindow(QMainWindow):
     def __init__(self, controller, **kwargs):
         super().__init__(**kwargs)
         self.controller = controller
-        self.plot_canvas = PlotCanvas(self)
 
         self.setWindowTitle('Time Series Labeler')
+        self.setGeometry(200, 200, 800, 600)
+        self.adjust_position()
         self._init()
+
+    def adjust_position(self):
+        center = QDesktopWidget().availableGeometry().center()
+        frame = self.frameGeometry()
+        frame.moveCenter(center)
+        self.move(frame.topLeft())
 
     def _init(self):
         central_widget = QWidget(flags=self.windowFlags())
         self.setCentralWidget(central_widget)
+
+        self.scroll_canvas = ScrollCanvas(central_widget)
+        self.plot_canvas = PlotCanvas(self)
         self._menubar()
 
+        self.scroll_canvas.setWidget(self.plot_canvas)
+        self.scroll_canvas.setWidgetResizable(True)
+
         layout = QVBoxLayout()
-        layout.addWidget(self.plot_canvas, alignment=Qt.Alignment())
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
+        layout.addWidget(self.scroll_canvas, alignment=Qt.Alignment())
         layout.addWidget(self.plot_canvas.toolbar, alignment=Qt.Alignment())
         central_widget.setLayout(layout)
 
@@ -201,11 +227,16 @@ class LabelerWindow(QMainWindow):
         self.plot_canvas.quit()
         event.ignore()
 
+    def resizeEvent(self, event):
+        self.plot_canvas.figure_resize()
+        return super(LabelerWindow, self).resizeEvent(event)
+
     def open_settings(self, active=0):
         settings_window = SettingsWindow()
         settings_window.tabs.setCurrentIndex(active)
         settings_window.exec()
         self.plot_canvas.core.redraw()
+        self.update_dimensions()
 
     def open_function_setup(self, func_index):
         if FunctionController.add(func_index):
@@ -221,10 +252,18 @@ class LabelerWindow(QMainWindow):
     def update_functions(self):
         self.remove_function.clear()
 
-        conf = config.data_config
-        for i, func in enumerate(conf.get_functions()):
+        for i, func in enumerate(config.get_functions()):
             func_entry = self.remove_function.addAction(func)
             func_entry.triggered.connect(make_caller(self.open_function_removal, i))
+
+    # TODO: improve
+    def update_dimensions(self):
+        # I honestly don't know how this can work, but it apparently does
+        self.centralWidget().setStyleSheet("opacity: 0;")
+        QTimer.singleShot(500, lambda: self.centralWidget().setStyleSheet("opacity: 1;"))
+
+        self.plot_canvas.figure_resize()
+        self.scroll_canvas.adjustSize()
 
 
 def make_caller(method, index):

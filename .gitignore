@@ -1,0 +1,5 @@
+config.json
+tsl.log
+test*.py
+venv
+.idea

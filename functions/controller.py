@@ -11,7 +11,7 @@ class FunctionDialog(QDialog):
     def __init__(self, title="Function setup", parameters=None):
         super().__init__()
         self.setWindowTitle(title)
-        ts_list = config.data_config.datafile.get_data_header()
+        ts_list = config.get_datafile().get_data_header()
 
         self.name = None
         self.source = None
@@ -86,7 +86,7 @@ class FunctionDialog(QDialog):
             self.button_box.button(QDialogButtonBox.Ok).setEnabled(False)
 
     def accept(self):
-        col_list = config.data_config.datafile.get_data_columns()
+        col_list = config.get_datafile().get_data_columns()
 
         self.name = self.name_input.text()
         self.source = col_list[self.source_input.currentIndex()]
