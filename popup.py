@@ -40,7 +40,7 @@ class RightClickMenu(QMenu):
             self.addSeparator()
 
         # Plot content (allows to customize the plotted series)
-        datafile = config.data_config.datafile
+        datafile = config.get_datafile()
         data_columns = datafile.get_data_columns()
         self.plot_set, self.normalize = config.get_plot_info()
 
@@ -90,7 +90,7 @@ class RightClickMenu(QMenu):
         self.canvas.core.remove_label(self.click_event)
 
     def action(self, value):
-        data_columns = config.data_config.datafile.get_data_columns()
+        data_columns = config.get_datafile().get_data_columns()
         if data_columns[value] in self.plot_set[self.plot_index]:
             self.plot_set[self.plot_index].remove(data_columns[value])
         else:
@@ -126,6 +126,6 @@ class RightClickMenu(QMenu):
         config.set_plot_info(self.plot_set, self.normalize)
 
     def reset_all(self):
-        self.plot_set = [[i] for i in config.data_config.datafile.get_data_columns()]
+        self.plot_set = [[i] for i in config.get_datafile().get_data_columns()]
         self.normalize = []
         config.set_plot_info(self.plot_set, self.normalize)

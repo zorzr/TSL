@@ -337,8 +337,9 @@ class LabelDialog(QDialog):
             self.button_box.button(QDialogButtonBox.Ok).setEnabled(False)
 
     def set_bad_names(self):
-        conf = config.data_config
-        data_col = conf.datafile.get_data_header()
-        labels, _ = conf.get_labels_info()
-        functions = conf.get_functions()
-        self.bad_names = [""] + data_col + labels + functions
+        self.bad_names = [""]
+        if config.data_config is not None:
+            data_col = config.get_datafile().get_data_header()
+            labels, _ = config.get_labels_info()
+            functions = config.get_functions()
+            self.bad_names += data_col + labels + functions

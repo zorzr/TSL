@@ -37,7 +37,7 @@ class DataFile:
         return data_col
 
     def get_original_columns(self):
-        functions = config.data_config.get_functions()
+        functions = config.get_functions()
 
         orig_col = []
         for i, key in enumerate(self.df):
@@ -46,7 +46,7 @@ class DataFile:
         return orig_col
 
     def get_function_columns(self):
-        functions = config.data_config.get_functions()
+        functions = config.get_functions()
 
         func_col = []
         for i, key in enumerate(self.df):

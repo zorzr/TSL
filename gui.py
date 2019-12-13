@@ -252,8 +252,7 @@ class LabelerWindow(QMainWindow):
     def update_functions(self):
         self.remove_function.clear()
 
-        conf = config.data_config
-        for i, func in enumerate(conf.get_functions()):
+        for i, func in enumerate(config.get_functions()):
             func_entry = self.remove_function.addAction(func)
             func_entry.triggered.connect(make_caller(self.open_function_removal, i))
 

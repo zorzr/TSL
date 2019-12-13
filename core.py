@@ -38,11 +38,11 @@ class PlotCore:
         self.plot()
 
     def reset(self):
-        config.data_config.read()
+        config.read_data_config()
         self.redraw()
 
     def plot(self):
-        datafile = config.data_config.datafile
+        datafile = config.get_datafile()
         plot_set, normalize = config.get_plot_info()
         header = list(datafile.df)
 
@@ -70,11 +70,11 @@ class PlotCore:
         x1 = min(self.canvas.prev_x, new_x)
         x2 = max(self.canvas.prev_x, new_x)
 
-        datafile = config.data_config.datafile
+        datafile = config.get_datafile()
         label, color = config.get_current_label()
 
         if not self.timestamp:
-            n_rows = datafile.df.shape[0]
+            n_rows = datafile.df.shape[0]  # TODO: get_shape()
             a = max(int(round(x1)), 0)
             b = max(int(round(x2)), 0)
             x1 = min(a, n_rows-1)
@@ -106,7 +106,7 @@ class PlotCore:
 
         for plots in self.plotters:
             plots.remove_rect(clk)
-        del config.data_config.datafile.labels_list[clk]
+        del config.get_datafile().labels_list[clk]
 
         self.canvas.modified = True
         self.canvas.draw()
@@ -123,8 +123,8 @@ class PlotCore:
             return index[-1]
 
     def insert_labels(self):
-        data_config = config.data_config
-        for lab in data_config.datafile.labels_list:
+        datafile = config.get_datafile()
+        for lab in datafile.labels_list:
             if self.timestamp:
                 x1 = self.timestamp[lab[1][0]]
                 x2 = self.timestamp[lab[1][1]]
@@ -140,7 +140,7 @@ class PlotCore:
                     x2 = x2 + 0.5
 
             for plot in self.plotters:
-                plot.add_rect(x1=x1, x2=x2, color=data_config.get_label_color(lab[0]))
+                plot.add_rect(x1=x1, x2=x2, color=config.get_label_color(lab[0]))
 
     def manage_empty(self):
         x_lim = None
@@ -208,9 +208,7 @@ class PlotCanvas(FigureCanvas):
 
         w, h = self.labeler.size().width(), self.labeler.size().height()
         sw = 20  # scrollbar width (plus margins)
-
-        # TODO: adjust height (overflows a bit because of ticks)
-        mh = config.tsl_config.config["plot_height"]  # minimum subplot height
+        mh = config.get_plot_height()  # minimum subplot height
 
         toolbar_height = self.toolbar.sizeHint().height() / 100
         menubar_height = self.labeler.menubar.sizeHint().height() / 100
@@ -224,7 +222,8 @@ class PlotCanvas(FigureCanvas):
 
     def same_index(self, new_x):
         if not self.core.timestamp:
-            n_rows = config.data_config.datafile.df.shape[0]  # TODO: get_shape() or get_datafile()
+            datafile = config.get_datafile()
+            n_rows = datafile.df.shape[0]  # TODO: get_shape()
             x1 = max(int(round(self.prev_x)), 0)
             x2 = max(int(round(new_x)), 0)
             x1 = min(x1, n_rows-1)
@@ -309,38 +308,38 @@ class PlotCanvas(FigureCanvas):
         self.modified = False
 
     def next_label(self):
-        config.data_config.next_label()
+        config.next_label()
         self.toolbar.update_label()
 
     def prev_label(self):
-        config.data_config.prev_label()
+        config.prev_label()
         self.toolbar.update_label()
 
     def next_file(self):
-        if self.modified or config.data_config.modified:
-            if config.tsl_config.config["autosave"]:
+        if self.modified or config.is_modified():
+            if config.get_autosave():
                 self.save()
             else:
                 answer = dialogs.ask_to_continue()
                 if not answer:
                     return
-        config.data_config.next_file()
+        config.next_file()
         self.reset()
 
     def prev_file(self):
-        if self.modified or config.data_config.modified:
-            if config.tsl_config.config["autosave"]:
+        if self.modified or config.is_modified():
+            if config.get_autosave():
                 self.save()
             else:
                 answer = dialogs.ask_to_continue()
                 if not answer:
                     return
-        config.data_config.prev_file()
+        config.prev_file()
         self.reset()
 
     def quit(self):
-        if self.modified or config.data_config.modified:
-            if config.tsl_config.config["autosave"]:
+        if self.modified or config.is_modified():
+            if config.get_autosave():
                 self.save()
             else:
                 answer = dialogs.ask_to_continue()

@@ -438,15 +438,26 @@ tsl_config = Config()
 data_config = None
 
 
-# TODO: refactoring, much easier to use these functions instead of getting the object instances first
-############################################
-# Experimental getters (possible refactor?)
-############################################
+# CONFIGURATION WRAPPERS
+# The tsl_config and data_config instances shouldn't be accessible from the outside.
+# The functions below abstract this module's logic and make it easier to use it.
+# Using this wrappers allows to safely improve the methods without having to look for all their
+#  usages among all the other modules and modify them (which would be a really poor design choice).
+# Also note that data_config class type is not known a priori.
+#
+# Example:
+#   import config
+#   config.tsl_config.config["plot_height"]             [BAD: assumption on the dict structure]
+#   config.get_plot_height()                            [GOOD: just need to change the function below]
+
+# APPLICATION CONFIG (getters, setters, saver)
 def get_autosave():
     return tsl_config.config["autosave"]
 
+
 def get_plot_height():
     return tsl_config.config["plot_height"]
+
 
 def set_tsl_config(autosave=None, plot_height=None):
     if autosave is not None:
@@ -454,27 +465,71 @@ def set_tsl_config(autosave=None, plot_height=None):
     if plot_height is not None:
         tsl_config.config["plot_height"] = plot_height
 
+
 def save_tsl_config():
     tsl_config.save()
 
 
-# Data config
+# DATA CONFIG (getters, setters, modified, I/O operations)
+def get_datafile():
+    return data_config.datafile
+
+
 def get_plot_info():
     return data_config.get_plot_info()
+
 
 def get_labels_info():
     return data_config.get_labels_info()
 
+
 def get_current_label():
     return data_config.get_current_label()
+
+
+def get_label_color(label_name):
+    return data_config.get_label_color(label_name)
+
+
+def get_functions():
+    return data_config.get_functions()
+
+
+def is_modified():
+    return data_config.modified
+
 
 def set_plot_info(plot_set, normalize):
     data_config.set_plot_info(plot_set, normalize)
 
+
 def set_labels_info(names, colors):
     data_config.set_labels_info(names, colors)
 
+
+def read_data_config():
+    data_config.read()
+
+
 def save_data_config():
     data_config.save_config()
+
+
 def save_file():
     data_config.save_file()
+
+
+def next_file():
+    data_config.next_file()
+
+
+def prev_file():
+    data_config.prev_file()
+
+
+def next_label():
+    data_config.next_label()
+
+
+def prev_label():
+    data_config.prev_label()
