@@ -74,7 +74,7 @@ class PlotCore:
         label, color = config.get_current_label()
 
         if not self.timestamp:
-            n_rows = datafile.df.shape[0]  # TODO: get_shape()
+            n_rows = datafile.get_shape()
             a = max(int(round(x1)), 0)
             b = max(int(round(x2)), 0)
             x1 = min(a, n_rows-1)
@@ -223,7 +223,7 @@ class PlotCanvas(FigureCanvas):
     def same_index(self, new_x):
         if not self.core.timestamp:
             datafile = config.get_datafile()
-            n_rows = datafile.df.shape[0]  # TODO: get_shape()
+            n_rows = datafile.get_shape()
             x1 = max(int(round(self.prev_x)), 0)
             x2 = max(int(round(new_x)), 0)
             x1 = min(x1, n_rows-1)

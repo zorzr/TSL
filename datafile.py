@@ -29,6 +29,9 @@ class DataFile:
             config.logger.error("Cannot read file {}, is it structured correctly?".format(self.filename))
             raise BadFileError
 
+    def get_shape(self):
+        return self.df.shape[0]
+
     def get_data_columns(self):
         data_col = []
         for i, key in enumerate(self.df):
@@ -86,7 +89,7 @@ class DataFile:
     def get_label_series(self, label):
         a = label[1][0]
         b = label[1][1] + 1
-        n_rows = self.df.shape[0]
+        n_rows = self.get_shape()
         s = pd.Series(n_rows * [''], name=label[0])
         for i in range(a, b):
             s.iat[i] = '1'

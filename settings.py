@@ -114,6 +114,7 @@ class GeneralTab(QWidget):
         self.plot_number.setStyleSheet("margin-left: 110px")
         self.height_change()
 
+        # noinspection PyUnresolvedReferences
         self.plot_height.valueChanged.connect(self.height_change)
         self.plot_number.valueChanged.connect(self.number_change)
 
