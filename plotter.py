@@ -72,7 +72,7 @@ class Plotter:
         self.manage_timestamp() if self.timestamp else None
 
         # Moves cursor above the time series
-        self.plot.lines.append(self.plot.lines.pop(0))
+        self.plot.add_line(self.plot.get_lines()[0])
 
         ylim = self.plot.get_ylim()
         self.h = abs(ylim[1] - ylim[0])
