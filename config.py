@@ -262,6 +262,9 @@ class ProjectData:
     def get_labels_info(self):
         return self.config["labels"], self.config["colors"]
 
+    def get_additional_options(self):
+        return self.config["binary_class"], self.config["independent_channels"]
+
     def set_labels_info(self, names, colors):
         self.config["labels"] = names
         self.config["colors"] = colors
@@ -490,6 +493,8 @@ def get_current_label():
 def get_label_color(label_name):
     return data_config.get_label_color(label_name)
 
+def get_additional_options():
+    return data_config.get_additional_options()
 
 def get_functions():
     return data_config.get_functions()
