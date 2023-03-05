@@ -1,4 +1,5 @@
 from PyQt5.QtWidgets import *
+from PyQt5.QtGui import QFont, QFontDatabase
 from settings import LabelTable, LabelDialog
 import matplotlib.colors as pltc
 
@@ -24,11 +25,14 @@ class ProjectWizard(QWizard):
     def on_finish(self):
         files_list = self.files_page.generate_files_list()
         names_list, colors_list = self.labels_page.table.generate_labels_list()
+        class_type, channels_type = self.labels_page.generate_additional_options()
 
         self.project = {
             "files": files_list,
             "labels": names_list,
-            "colors": colors_list
+            "colors": colors_list,
+            "binary_class": class_type,
+            "independent_channels": channels_type
         }
 
 
@@ -83,6 +87,8 @@ class Page2(QWizardPage):
         self.setSubTitle("Indicate the labels to be used in the created project.")
         self.setFinalPage(True)
 
+        self.checkboxes = []
+
         default_labels = [("Label", "#1f77b4")]
         self.table = LabelTable(default_labels)
 
@@ -107,6 +113,26 @@ class Page2(QWizardPage):
         bar = QWidget()
         bar.setLayout(bar_layout)
         layout.addWidget(bar)
+
+        labelFont    = QFont()
+        ad_options   = QLabel("Additional options: ")
+        ad_project   = QCheckBox(" Two class anomaly detection project ")
+        label_method = QCheckBox(" Label channels independently ")
+
+        labelFont.setBold(True)
+        ad_options.setFont(labelFont)
+
+        bar_layout_2 = QGridLayout()
+        bar_layout_2.addWidget(ad_options)
+        bar_layout_2.addWidget(ad_project)
+        bar_layout_2.addWidget(label_method)
+
+        bar_2 = QWidget()
+        bar_2.setLayout(bar_layout_2)
+        layout.addWidget(bar_2)
+
+        self.checkboxes.append(ad_project)
+        self.checkboxes.append(label_method)
 
         add.clicked.connect(self.add)
         edit.clicked.connect(self.edit)
@@ -159,6 +185,15 @@ class Page2(QWizardPage):
 
         if self.table.rowCount() == 0:
             self.completeChanged.emit()
+
+    def generate_additional_options(self):
+        additional_options = []
+        for i, box in enumerate(self.checkboxes):
+            if box.isChecked():
+                additional_options.append('true')
+            else:
+                additional_options.append('false')
+        return additional_options
 
     def isComplete(self):
         return self.table.rowCount() > 0
