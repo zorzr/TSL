@@ -1,0 +1,5 @@
+lttb==0.3.1
+matplotlib==3.7.0
+numpy==1.23.4
+pandas==1.5.1
+PyQt5==5.15.9
