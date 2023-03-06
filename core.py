@@ -66,7 +66,15 @@ class PlotCore:
         self.insert_labels()
         self.canvas.refresh()
 
-    def add_label(self, new_x):
+    def subplot_event(self, event_axes):
+        subplot_number = 0
+        #get subplot index where event is happening
+        for subplot_index, subplot in enumerate(self.subplots):
+            if event_axes == subplot:
+                subplot_number = subplot_index
+        return subplot_number
+
+    def add_label(self, new_x, event_axis):
         x1 = min(self.canvas.prev_x, new_x)
         x2 = max(self.canvas.prev_x, new_x)
 
@@ -92,8 +100,17 @@ class PlotCore:
                 x1 = x1 - span
                 x2 = x2 + span
 
-        for plots in self.plotters:
-            plots.add_rect(x1=x1, x2=x2, color=color)
+        _, is_channel_independent = config.get_additional_options()
+        if is_channel_independent == 'false':
+            #add rectangle for each plot
+            for plots in self.plotters:
+                plots.add_rect(x1=x1, x2=x2, color=color)
+        else:
+            #add rectangle for one plot
+            channel_index = self.subplot_event(event_axis)
+            self.plotters[channel_index].add_rect(x1=x1, x2=x2, color=color)
+            label = label + '_ch' + str(channel_index)
+
         datafile.labels_list.append([label, (a, b)])
 
         self.canvas.modified = True
@@ -152,9 +169,14 @@ class PlotCore:
             if plot.is_empty() and x_lim:
                 plot.plot.set_xlim(x_lim)
 
-    def move_cursor(self, xs):
-        for p in self.plotters:
-            p.move_line(xs)
+    def move_cursor(self, xs, subplot_number):
+        #move cursor
+        _, is_channel_independent = config.get_additional_options()
+        if is_channel_independent == 'false':
+            for i in subplot_number:
+                self.plotters[i].move_line(xs)
+        else:
+            self.plotters[subplot_number].move_line(xs)
         self.canvas.draw()
 
     def zoom_in(self):
@@ -245,7 +267,7 @@ class PlotCanvas(FigureCanvas):
                 self.prev_x = event.xdata
                 self.dragging = True
             else:
-                self.core.add_label(event.xdata)
+                self.core.add_label(event.xdata, event.inaxes)
                 self.prev_x = None
         elif event.button == MOUSE_RIGHT:
             index = self.core.subplots.index(event.inaxes)
@@ -267,15 +289,23 @@ class PlotCanvas(FigureCanvas):
                 self.dragging = False
                 return
 
-            self.core.add_label(event.xdata)
+            self.core.add_label(event.xdata, event.inaxes)
             self.prev_x = None
 
     def on_motion(self, event):
+        subplot_number = range(0, len(self.core.subplots))
+
         if event.inaxes not in self.core.subplots:
             return
 
+        #if channels are independend, move line just for one channel
+        _, is_channel_independent = config.get_additional_options()
+        if is_channel_independent == 'true':
+            #get subplot number
+            subplot_number = self.core.subplot_event(event.inaxes)
+
         xs = [event.xdata, event.xdata]
-        self.core.move_cursor(xs)
+        self.core.move_cursor(xs, subplot_number)
 
     def on_key(self, event):
         key = event.key()

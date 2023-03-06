@@ -96,21 +96,35 @@ class DataFile:
         return s
 
     def merge_same_label_types(self, columns):
-        available_labels, _ = config.get_labels_info()
-        n_rows = self.get_shape()
+        available_labels, _       = config.get_labels_info()
+        _, is_channel_independent = config.get_additional_options()
+        plots_number, _           = config.get_plot_info()
+        n_rows                    = self.get_shape()
         new_columns = []
+        new_labels  = []
 
-        for i, label in enumerate(available_labels):
+        if is_channel_independent == 'true':
+            #create new labels for each channel
+            for _, label in enumerate(available_labels):
+                for j in range(len(plots_number)):
+                    new_labels.append(label + '_ch' + str(j))
+        else:
+            #do not modify labels
+            new_labels = available_labels
+
+        for label in new_labels:
             new_column = pd.Series(n_rows * ['0'], name=label)
+            #get columns for the same label type - to be merged
             column_index = [j for j, entry in enumerate(self.labels_list) if entry[0] == label]
+            #if multiple columns for the same label, merge to a new column
             if len(column_index):
                 for row in range(0, len(new_column)):
+                    #loop through each row in the column matrix
                     for index in column_index:
                         if columns[index][row] == '1':
                             new_column[row] = '1'
                             break
-                new_columns.append(new_column)
-
+            new_columns.append(new_column)
         return pd.concat(new_columns, axis=1)
 
     def labels_list_to_df(self):
@@ -141,16 +155,19 @@ class DataFile:
 
         self.io.save(all_data_final, self.filename)
 
-        # merge labels if necessary
+        # merge labels if is an anomaly detection project
         anomaly_detection_options = config.get_additional_options()
         if(anomaly_detection_options[0] == 'true'):
+            #merge columns together
             label_df = self.labels_merged_list_to_df()
             all_data_merged_labels = pd.concat([all_data, label_df], axis=1)
 
+            #create new directory for labeled data
             new_dir_path = os.path.join(os.path.dirname(self.filename), "ad_labeled_files")
             os.makedirs(new_dir_path, exist_ok=True)
             new_file_path = self.filename.replace(os.path.dirname(self.filename), new_dir_path)
 
+            #save labeled data
             self.io.save(all_data_merged_labels, new_file_path)
 
     def get_series_to_process(self, column, name):
